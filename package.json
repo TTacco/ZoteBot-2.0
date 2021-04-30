@@ -2,7 +2,7 @@
   "name": "zotebot-2.0",
   "version": "1.0.0",
   "description": "Hollow Knight Discord Bot",
-  "main": "main.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -18,5 +18,8 @@
   "homepage": "https://github.com/TTacco/ZoteBot-2.0#readme",
   "dependencies": {
     "discord.js": "^12.5.3"
+  },
+  "devDependencies": {
+    "eslint": "^7.25.0"
   }
 }
