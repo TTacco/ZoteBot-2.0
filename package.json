@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/TTacco/ZoteBot-2.0/issues"
   },
-  "homepage": "https://github.com/TTacco/ZoteBot-2.0#readme"
+  "homepage": "https://github.com/TTacco/ZoteBot-2.0#readme",
+  "dependencies": {
+    "discord.js": "^12.5.3"
+  }
 }
