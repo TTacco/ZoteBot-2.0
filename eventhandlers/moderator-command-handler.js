@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const { client } = require('../index.js');
-const { banUser } = require('../commands/ban-command.js');
+const { banUser, unBanUser } = require('../commands/ban-command.js');
 
 const allowedRoles = ['admins', 'moderators']
 
@@ -29,6 +29,9 @@ client.on('message', message => {
         case 'ban':
         case 'fox2':
             banUser(client, arguments, [message.channel, message.guild]);
+            break;
+        case 'unban':
+            unBanUser(client, arguments, [message.channel, message.guild]);
             break;
         default:
             message.channel.send(`Unable to recognize the command: "${command}"`);
