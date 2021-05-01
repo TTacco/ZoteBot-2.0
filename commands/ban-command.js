@@ -22,7 +22,7 @@ module.exports = {
 				channel.send("User not found \n Please use the format of 'USER#0000' or make sure the ID set correctly")
 			}
 			catch(error){
-				console.log('Unable to send message the channel');
+				console.log('Unable to send message to the channel');
 			}
 			return
 		};
@@ -42,13 +42,45 @@ module.exports = {
         banEmbed.setTimestamp();
 		
 		try {
-			channel.send(banEmbed);
-			user.send(`You have banned from the ${guild.name} server \n Reason: ${banReason}`);
+			user.send(`You have banned from **${guild.name}** \nReason: ${banReason}`);
+
 			guild.members.ban(user, { banReason });
 		} catch (error) {
-			return channel.send(`Failed to ban **${user.tag}**: ${error}`);
+			return channel.send(`Failed to ban: ${error}`);
 		}
 
-
+		return channel.send(banEmbed);
 	},
+
+	unBanUser(client, arguements, [channel, guild]) {
+
+		let user = null;
+
+		//Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
+		if(/\b([0-9]{18})\b/.test(arguements[0])){
+			let cleanedID = arguements[0].replace(/[<>!@]/g, ''); 
+			user = client.users.cache.get(cleanedID);
+		}
+		else{
+			user = client.users.cache.find(u => u.tag === arguements[0]);
+		}
+
+		//If user is not found then warn the channel the message it was sent that their format is probably wrong
+		if(user == null) {
+			try{
+				channel.send("User not found \n Please use the format of 'USER#0000' or make sure the ID set correctly")
+			}
+			catch(error){
+				console.log('Unable to send message to the channel');
+			}
+			return
+		};
+
+		try {
+			guild.members.unban(user);
+		} catch (error) {
+			return channel.send(`Failed to ban: ${error}`);
+		}
+
+	}
 };
