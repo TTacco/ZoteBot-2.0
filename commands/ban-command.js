@@ -2,15 +2,19 @@
 const Discord = require('discord.js');
 
 module.exports = {
-	banUser(client, channel, arguements) {
+	banUser(client, arguements, [channel, guild]) {
 
 		let user = null;
 
 		//Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
-		if(/\b([0-9]{18})\b/.test(arguements[0]))
-			user = client.users.cache.get(arguements[0]);
-		else
+		if(/\b([0-9]{18})\b/.test(arguements[0])){
+			let cleanedID = arguements[0].replace(/[<>!@]/g, ''); 
+			user = client.users.cache.get(cleanedID);
+		}
+		else{
 			user = client.users.cache.find(u => u.tag === arguements[0]);
+		}
+
 
 		//If user is not found then warn the channel the message it was sent that their format is probably wrong
 		if(user == null) {
@@ -25,15 +29,26 @@ module.exports = {
 
 		//Make this modifiable later to point where to log this ban
 		arguements.shift();
-		let banReason = arguements.join('');
+		let banReason = arguements.join(' ');
+		if(banReason.length <= 0) banReason = "No reason given";
 
 		let banEmbed = new Discord.MessageEmbed();
         banEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
 		banEmbed.setThumbnail(user.avatarURL());
-        banEmbed.setTitle(`<<Bandit has been splashed!>>`);
+        banEmbed.setTitle(`USER HAS BEEN BANNED`);
         banEmbed.setDescription('Reason: ' + banReason);
         banEmbed.setColor('#FF1111');
+		banEmbed.setFooter(`User ID: ${user.id}`);
         banEmbed.setTimestamp();
-        channel.send(banEmbed);
+		
+		try {
+			channel.send(banEmbed);
+			user.send(`You have banned from the ${guild.name} server \n Reason: ${banReason}`);
+			guild.members.ban(user, { banReason });
+		} catch (error) {
+			return channel.send(`Failed to ban **${user.tag}**: ${error}`);
+		}
+
+
 	},
 };

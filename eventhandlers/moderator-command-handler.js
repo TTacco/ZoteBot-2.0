@@ -2,7 +2,8 @@ const Discord = require('discord.js');
 const { client } = require('../index.js');
 const { banUser } = require('../commands/ban-command.js');
 
-//Slur  detection
+const allowedRoles = ['admins', 'moderators']
+
 client.on('message', message => {  
 
     //convert this into a configurable prefix later
@@ -18,7 +19,6 @@ client.on('message', message => {
     let arguments = message.content.substr(1, message.content.length).trim().split(" ");
     let command = arguments.shift().toLowerCase(); 
     
-
     switch(command){
         case 'warn':
 
@@ -28,7 +28,7 @@ client.on('message', message => {
             break;
         case 'ban':
         case 'fox2':
-            banUser(client, message.channel, arguments);
+            banUser(client, arguments, [message.channel, message.guild]);
             break;
         default:
             message.channel.send(`Unable to recognize the command: "${command}"`);
