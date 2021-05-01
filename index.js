@@ -13,3 +13,4 @@ module.exports = { client: client }
 
 //Run event files
 require('./eventhandlers/blacklisted-words-handler.js');
+require('./eventhandlers/command-listener-handler.js'); 
