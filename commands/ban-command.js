@@ -42,7 +42,7 @@ module.exports = {
         banEmbed.setTimestamp();
 		
 		try {
-			await user.send(`You have banned from **${guild.name}** \nReason: ${banReason}`);
+			await user.send(`You have banned from **${guild.name}** \nReason: ${banReason} and being a fuckin nerd LMFAO`);
 
 			guild.members.ban(user, { banReason });
 		} catch (error) {
@@ -58,7 +58,14 @@ module.exports = {
 			await guild.members.unban(arguements[0]);
 			return channel.send(`Successfully unbanned <@${arguements[0]}>!`);
 		} catch (error) {
-			return channel.send(`Failed to unban: ${error}`);
+			let errorMessage = `Failed to unban. Error: **${error}**\n`
+			if(error == 'DiscordAPIError: Unknown Ban'){
+				errorMessage += `Reason: Most likely you gave an incorrect syntax, make sure the ID is correct.`;
+			}
+			else if(error == 'DiscordAPIError: Unknown User'){
+				errorMessage += `Reason: User either doesn't exist or is already unbanned from the server.`;
+			}
+			channel.send(errorMessage);
 		}
 	}
 };
