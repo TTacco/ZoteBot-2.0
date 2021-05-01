@@ -6,7 +6,7 @@ client.on('message', message =>{
 	if(config.mediaOnlyChannelID.includes(message.channel.id)){
 
 		console.log('Reading');
-		if(message.attachments.size === 0 && !message.author.bot || (message.attachments.size > 0 && message.content && !message.member.hasPermission('BAN_MEMBERS'))){
+		if(message.attachments.size === 0 && !message.member.hasPermission('BAN_MEMBERS') || (message.attachments.size > 0 && message.content && !message.member.hasPermission('BAN_MEMBERS'))){
 			message.reply('This channel is strictly for media only');	
 			message.author.send(`Sorry but ${message.channel.name} in the ${message.guild.name} server is a media only channel`);
 			message.delete();
