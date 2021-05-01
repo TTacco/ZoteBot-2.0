@@ -1,19 +1,15 @@
-var { botTokenID } = require('./token.js');
+var { botTokenID } = require('./resources/token.js');
 
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
 client.once('ready', () => {
-	console.log('ZOTEBOT STATUS: ENABLED');
+	console.log('The Great! The Powerful! Zote the Mighty, has arrived!' );
 });
 
 client.login(botTokenID);
 
-client.on('message', message => {
-	if (message.content === '!awaken') {
-        // send back "Pong." to the channel the message was sent in
-        message.channel.send('Ensuring the destruction of shitposters.');
-    }
-    
-});
+module.exports = { client: client }
 
+//Run event files
+require('./eventhandlers/blacklisted-words-handler.js');
