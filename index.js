@@ -9,9 +9,7 @@ client.once('ready', () => {
 
 client.login(botTokenID);
 
-client.on('message', message => {
-	if (message.content === '!awaken') {
-        // send back "Pong." to the channel the message was sent in
-        message.channel.send('Ensuring the destruction of shitposters.');
-    }
-});
+module.exports = {client: client};
+
+//Run event files
+require('./eventhandlers/media-only-handler');
