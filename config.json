@@ -1,8 +1,12 @@
 {
-	"mediaOnlyLogging": "true",
-	"mediaOnlyLoggingChannelID": ["837505202994282508"],
-	"mediaOnlyChannelID": ["837605332309377056"],
+	"mediaOnly" : false,
+	"mediaOnlySettings" : [
+		{"mediaOnlyChannelID" : "837605332309377056", "mediaOnlyLoggingChannelID" : ["837505202994282508", "837596563823132732"]}
+	],
 
-	"autoDeleteTimeout": 1000,
-	"autoDeleteChannelID" : ["837596563823132732"]
+
+	"autoDelete" : false,
+	"autoDeleteSettings" : [
+			{"autoDeleteChannelID": "837591854647869460", "autoDeleteTimeout" : 5000 }
+	]
 }

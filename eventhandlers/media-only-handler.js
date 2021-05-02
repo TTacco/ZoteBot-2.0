@@ -2,28 +2,32 @@ const Discord = require('discord.js');
 const { client } = require('../index.js');
 const config = require('../config.json');
 
-client.on('message', message =>{
-	if(config.mediaOnlyChannelID.includes(message.channel.id)){
+console.log("Media Only Settings below:");
+console.log(config.mediaOnlySettings);
 
-		console.log('Reading');
-		if(message.attachments.size === 0 && !message.member.hasPermission('BAN_MEMBERS') || (message.attachments.size > 0 && message.content && !message.member.hasPermission('BAN_MEMBERS'))){
-			message.reply('This channel is strictly for media only');	
-			message.author.send(`Sorry but ${message.channel.name} in the ${message.guild.name} server is a media only channel`);
-			message.delete();
-			
-			if(config.mediaOnlyLogging === "true"){
-				for (i = 0; i < config.mediaOnlyLoggingChannelID.length; i++) {
-					var channelDestination = client.channels.cache.get(config.mediaOnlyLoggingChannelID[i]);
-					var warnUserEmbed = new Discord.MessageEmbed();
-					warnUserEmbed.setAuthor(`USER: ${message.author.tag}`);
-					warnUserEmbed.setThumbnail(message.author.avatarURL());
-					warnUserEmbed.setTitle(`Attempting to send text in: ${message.channel.name}`);
-					warnUserEmbed.setDescription(`User said: "${message}"`);
-					warnUserEmbed.setFooter(`User ID: ${message.author.id}`);
-					warnUserEmbed.setColor('#FF4444');
-					channelDestination.send(warnUserEmbed);
+client.on('message', message =>{
+	if(config.mediaOnly){
+		for (i = 0; i < config.mediaOnlySettings.length; i++) {
+			if(config.mediaOnlySettings[i].mediaOnlyChannelID === (message.channel.id) && !message.author.bot){
+				console.log('Reading');
+				message.reply('This channel is strictly for media only');	
+				message.author.send(`Sorry but ${message.channel.name} in the ${message.guild.name} server is a media only channel`);
+				message.delete().catch(error => {console.log(`Deleted by ${message.author.tag}`);});
+
+				if(config.mediaOnlySettings[i].mediaOnlyLoggingChannelID != null){
+					for (x = 0; x < config.mediaOnlySettings[i].mediaOnlyLoggingChannelID.length; x++) {
+						var channelDestination = client.channels.cache.get(config.mediaOnlySettings[i].mediaOnlyLoggingChannelID[x]);
+						var warnUserEmbed = new Discord.MessageEmbed();
+						warnUserEmbed.setAuthor(`USER: ${message.author.tag}`);
+						warnUserEmbed.setThumbnail(message.author.avatarURL());
+						warnUserEmbed.setTitle(`Attempting to send text in: ${message.channel.name}`);
+						warnUserEmbed.setDescription(`User said: "${message}"`);
+						warnUserEmbed.setFooter(`User ID: ${message.author.id}`);
+						warnUserEmbed.setColor('#FF4444');
+						channelDestination.send(warnUserEmbed);
+					}
 				}
-			} 
+			}
 		}
 	}
 })

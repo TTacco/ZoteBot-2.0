@@ -14,4 +14,4 @@ module.exports = {client: client};
 require('./eventhandlers/blacklisted-words-handler.js');
 require('./eventhandlers/command-listener-handler.js'); 
 require('./eventhandlers/media-only-handler.js');
-require('./eventhandlers/auto-delete-handler.js')
+require('./eventhandlers/auto-delete-handler.js');
