@@ -2,11 +2,11 @@ const Discord = require('discord.js');
 const { client } = require('../index.js');
 const config = require('../config.json');
 
-console.log("Media Only Settings below:");
-console.log(config.mediaOnlySettings);
+if(config.mediaOnly){
+	console.log("Media Only Settings below:");
+	console.log(config.mediaOnlySettings);
 
-client.on('message', message =>{
-	if(config.mediaOnly){
+	client.on('message', message =>{
 		for (i = 0; i < config.mediaOnlySettings.length; i++) {
 			if(config.mediaOnlySettings[i].mediaOnlyChannelID === (message.channel.id) && !message.author.bot){
 				console.log('Reading');
@@ -29,5 +29,5 @@ client.on('message', message =>{
 				}
 			}
 		}
-	}
-})
+	})
+}
