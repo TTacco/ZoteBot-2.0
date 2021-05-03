@@ -1,12 +1,12 @@
 //handles the banning of a user
 const Discord = require('discord.js');
-const { getUser, sendMessageToChannel } = require('../resources/utils');
+const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/utils');
 
 module.exports = {
 	async banUser(client, args, [channel, guild, moderator]) {
 
 		let user = null;
-		user = getUser(client, args[0]);
+		user = getUserObjectByNameOrID(client, args[0]);
 
 		//If user is not found then warn the channel the message it was sent that their format is probably wrong
 		if(user == null) {
@@ -50,24 +50,32 @@ module.exports = {
 		guild: the current server being used
 		moderator: the user who initiated the ban
 	*/
-	async massBan(client, args, [channel, guild, moderator]) {
+	async massBan(args, [channel, guild, moderator]) {
 
+		let members = await guild.members.fetch();
+		//!ban 2347239479237492 i just wanted to
+		//console.log(members);
 		let usersToBan = [];
 		let banReason = '';
-		let members = guild.members.fetch();
-		while(args.length > 0){
-			let arg = args.shift();
-			let user = await getUser(members, arg, channel);
 
-			console.log(`Logging arg ${arg} | user: ${user}`);
-			if(user != null){
-				usersToBan.push(user);
+		while(args.length > 0){
+			let currArg = args.shift();
+			console.log("Current arguement ", currArg);
+			let userObj = await getUserObjectByNameOrID(members ,currArg, channel);
+
+			if(userObj != null){
+				usersToBan.push(userObj);
 			}
 			else{
-				banReason = arg + ' ' + args.join(' ');  
-				break;
-			}		
+				//Assume that the arguement lists for the users is finished
+				banReason = currArg + ' ' + args.join(' ');
+			}
+			
 		}
+
+		console.log(`Banning ${usersToBan} for reason ${banReason}`);
+
+		return;
 
 		if(usersToBan.length < 1) {
 			sendMessageToChannel('No specified users found in the arguement', channel);
