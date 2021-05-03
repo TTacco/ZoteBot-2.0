@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const { client } = require('../index.js');
-const { banUser, unBanUser } = require('../commands/ban-command.js');
+const { banUser, massBan, unBanUser } = require('../commands/ban-command.js');
 
 const allowedRoles = ['admin', 'moderators'];
 
@@ -8,6 +8,7 @@ client.on('message', message => {
 
     //convert this into a configurable prefix later
     if (message.author.bot || !message.content.startsWith("!")) return;
+
 
     if(!message.member.roles.cache.some(role => { 
       return allowedRoles.includes(role.name.toLocaleLowerCase());
@@ -30,6 +31,9 @@ client.on('message', message => {
         case 'fox2':
         case 'foxtwo':
             banUser(client, arguments, [message.channel, message.guild, message.author]);
+            break;
+        case 'massban':
+            massBan(client, arguments, [message.channel, message.guild, message.author]);
             break;
         case 'unban':
             unBanUser(client, arguments, [message.channel, message.guild]);

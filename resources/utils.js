@@ -1,24 +1,41 @@
+const { Client } = require("discord.js");
+
 module.exports = {
     //Finds the user via ID or via name tag and returns the user class
-    async getUser(client, userIDorNameTag){
+    async getUser(guildMembers, useridentification, channelOrigin){
         //Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
-		if(/\b([0-9]{18})\b/.test(userIDorNameTag)){
-			let cleanedID = userIDorNameTag.replace(/[<>!@]/g, ''); 
-			user = client.users.cache.get(cleanedID);
+		let members;
+		let user = null;
+		try{
+			if(/\b([0-9]{18})\b/.test(useridentification)){
+				let cleanedID = useridentification.replace(/[<>!@]/g, '').trim();
+				//user = client.users.cache.get(cleanedID);
+				//user = await client.users.fetch(cleanedID);
+			}
+			else{
+				console.log(client.users.cache);
+				//user = client.users.cache.find(user => user.username == useridentification);
+			}		
 		}
-		else{
-			user = client.users.cache.find(u => u.tag === userIDorNameTag);
+		catch(error){	
+			console.log(error);
 		}
-
+	
+		//Check if a user was acquired;
 		if(user == null) {
+			module.exports.sendMessageToChannel("User not found \nPlease use the format of 'USER#0000' or make sure the ID set correctly", channelOrigin); 				return null;
+		}
+		else if(user.bot){
 			try{
-				channel.send("User not found \n Please use the format of 'USER#0000' or make sure the ID set correctly")
-			}
+				channelOrigin.send("Unable to ban a bot");
+			}	
 			catch(error){
-				console.log('Unable to send message to the channel');
+				console.log(error);
+			}	
+			finally{
+				return null;
 			}
-			return null;
-		};
+		}
 
         return user;
     },

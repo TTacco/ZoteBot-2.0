@@ -54,17 +54,19 @@ module.exports = {
 
 		let usersToBan = [];
 		let banReason = '';
+		let members = guild.members.fetch();
 		while(args.length > 0){
 			let arg = args.shift();
-			let user = getUser(arg);
+			let user = await getUser(members, arg, channel);
 
+			console.log(`Logging arg ${arg} | user: ${user}`);
 			if(user != null){
 				usersToBan.push(user);
 			}
 			else{
 				banReason = arg + ' ' + args.join(' ');  
 				break;
-			}			
+			}		
 		}
 
 		if(usersToBan.length < 1) {
@@ -76,7 +78,9 @@ module.exports = {
 
 		let banEmbed = new Discord.MessageEmbed();
 
-		usersToBan.forEach(user => {
+		console.log(usersToBan);
+		return;
+		usersToBan.forEach(async (user) => {
         	banEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
 			banEmbed.setThumbnail(user.avatarURL());
         	banEmbed.setTitle(`USER HAS BEEN BANNED`);
