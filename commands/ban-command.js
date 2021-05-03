@@ -1,20 +1,12 @@
 //handles the banning of a user
 const Discord = require('discord.js');
+const { getUser, sendMessageToChannel } = require('../resources/utils');
 
 module.exports = {
-	async banUser(client, arguements, [channel, guild]) {
+	async banUser(client, args, [channel, guild, moderator]) {
 
 		let user = null;
-
-		//Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
-		if(/\b([0-9]{18})\b/.test(arguements[0])){
-			let cleanedID = arguements[0].replace(/[<>!@]/g, ''); 
-			user = client.users.cache.get(cleanedID);
-		}
-		else{
-			user = client.users.cache.find(u => u.tag === arguements[0]);
-		}
-
+		user = getUser(client, args[0]);
 
 		//If user is not found then warn the channel the message it was sent that their format is probably wrong
 		if(user == null) {
@@ -28,8 +20,8 @@ module.exports = {
 		};
 
 		//Make this modifiable later to point where to log this ban
-		arguements.shift();
-		let banReason = arguements.join(' ');
+		args.shift();
+		let banReason = args.join(' ');
 		if(banReason.length <= 0) banReason = "No reason given";
 
 		let banEmbed = new Discord.MessageEmbed();
@@ -42,9 +34,8 @@ module.exports = {
         banEmbed.setTimestamp();
 		
 		try {
-			await user.send(`You have banned from **${guild.name}** \nReason: ${banReason} and being a fuckin nerd LMFAO`);
-
-			guild.members.ban(user, { banReason });
+			await user.send(`You have banned from **${guild.name}** \nReason: ${banReason}`);
+			await guild.members.ban(user, { banReason });
 		} catch (error) {
 			return channel.send(`Failed to ban: ${error}`);
 		}
@@ -52,11 +43,63 @@ module.exports = {
 		return channel.send(banEmbed);
 	},
 
+	/*
+		client: Discord client instance
+		args: the IDs to be banned and the reason for the ban
+		channel: the channel the ban command was issued from
+		guild: the current server being used
+		moderator: the user who initiated the ban
+	*/
+	async massBan(client, args, [channel, guild, moderator]) {
+
+		let usersToBan = [];
+		let banReason = '';
+		while(args.length > 0){
+			let arg = args.shift();
+			let user = getUser(arg);
+
+			if(user != null){
+				usersToBan.push(user);
+			}
+			else{
+				banReason = arg + ' ' + args.join(' ');  
+				break;
+			}			
+		}
+
+		if(usersToBan.length < 1) {
+			sendMessageToChannel('No specified users found in the arguement', channel);
+			return;
+		}  
+
+		if(banReason.length <= 0) banReason = "No reason given";
+
+		let banEmbed = new Discord.MessageEmbed();
+
+		usersToBan.forEach(user => {
+        	banEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
+			banEmbed.setThumbnail(user.avatarURL());
+        	banEmbed.setTitle(`USER HAS BEEN BANNED`);
+        	banEmbed.setDescription('Reason: ' + banReason);
+        	banEmbed.setColor('#FF1111');
+			banEmbed.setFooter(`User ID: ${user.id}`);
+        	banEmbed.setTimestamp();
+					
+			try {
+				await user.send(`You have banned from **${guild.name}** \nReason: ${banReason}`);
+				//await guild.members.ban(user, { banReason });	
+				channel.send(banEmbed);
+			} catch (error) {
+				return sendMessageToChannel(`Failed to ban: ${user.name}\nError: ${error}`, channel)
+			}
+		});
+	},
+
 	async unBanUser(client, arguements, [channel, guild]) {
 		//Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
 		try {
 			await guild.members.unban(arguements[0]);
-			return channel.send(`Successfully unbanned <@${arguements[0]}>!`);
+			return channel.send(`Successfully unbanned <@${arguements[0]}>`);
 		} catch (error) {
 			let errorMessage = `Failed to unban. Error: **${error}**\n`
 			if(error == 'DiscordAPIError: Unknown Ban'){

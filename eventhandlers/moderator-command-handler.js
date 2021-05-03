@@ -2,19 +2,19 @@ const Discord = require('discord.js');
 const { client } = require('../index.js');
 const { banUser, unBanUser } = require('../commands/ban-command.js');
 
-const allowedRoles = ['admins', 'moderators']
+const allowedRoles = ['admin', 'moderators'];
 
 client.on('message', message => {  
 
     //convert this into a configurable prefix later
     if (message.author.bot || !message.content.startsWith("!")) return;
 
-    if(!message.member.roles.cache.some(role => {
-        return ( role.name.toLowerCase() === 'admin' ||
-        role.name.toLowerCase() === 'moderators')
-    })) {
+    if(!message.member.roles.cache.some(role => { 
+      return allowedRoles.includes(role.name.toLocaleLowerCase());
+    })){
+        message.channel.send(`No permissions to use this role`);
         return;
-    }  
+    } 
 
     let arguments = message.content.substr(1, message.content.length).trim().split(" ");
     let command = arguments.shift().toLowerCase(); 
@@ -28,13 +28,14 @@ client.on('message', message => {
             break;
         case 'ban':
         case 'fox2':
-            banUser(client, arguments, [message.channel, message.guild]);
+        case 'foxtwo':
+            banUser(client, arguments, [message.channel, message.guild, message.author]);
             break;
         case 'unban':
             unBanUser(client, arguments, [message.channel, message.guild]);
             break;
         default:
-            message.channel.send(`Unable to recognize the command: "${command}"`);
+            message.channel.send(`Unrecognized command: "${command}"`);
             break;
     }
 });
