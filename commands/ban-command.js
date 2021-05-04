@@ -74,7 +74,7 @@ module.exports = {
 			
 		}
 
-		console.log(`Banning ${usersToBan} for reason ${banReason}`);
+		//console.log(`Banning ${usersToBan} for reason ${banReason}`);
 
 		return;
 
