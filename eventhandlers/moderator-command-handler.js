@@ -19,7 +19,8 @@ client.on('message', message => {
 
     let arguments = message.content.substr(1, message.content.length).trim().split(/\s+/);
     let command = arguments.shift().toLowerCase(); 
-    
+
+
     switch(command){
         case 'warn':
 
@@ -33,7 +34,7 @@ client.on('message', message => {
             banUser(client, arguments, [message.channel, message.guild, message.author]);
             break;
         case 'massban':
-            massBan(arguments, [message.channel, message.guild, message.author]);
+            massBan(client, arguments, message);
             break;
         case 'unban':
             unBanUser(client, arguments, [message.channel, message.guild]);

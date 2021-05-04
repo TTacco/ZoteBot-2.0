@@ -50,18 +50,18 @@ module.exports = {
 		guild: the current server being used
 		moderator: the user who initiated the ban
 	*/
-	async massBan(args, [channel, guild, moderator]) {
+	async massBan(client, args, message) {
 
-		let members = await guild.members.fetch();
 		//!ban 2347239479237492 i just wanted to
 		//console.log(members);
+
 		let usersToBan = [];
 		let banReason = '';
 
 		while(args.length > 0){
 			let currArg = args.shift();
 			console.log("Current arguement ", currArg);
-			let userObj = await getUserObjectByNameOrID(members ,currArg, channel);
+			let userObj = await getUserObjectByNameOrID(client, currArg, message.guild, message.channel);
 
 			if(userObj != null){
 				usersToBan.push(userObj);
@@ -69,6 +69,7 @@ module.exports = {
 			else{
 				//Assume that the arguement lists for the users is finished
 				banReason = currArg + ' ' + args.join(' ');
+				break;
 			}
 			
 		}
@@ -100,7 +101,7 @@ module.exports = {
 			try {
 				await user.send(`You have banned from **${guild.name}** \nReason: ${banReason}`);
 				//await guild.members.ban(user, { banReason });	
-				channel.send(banEmbed);
+				message.channel.send(banEmbed);
 			} catch (error) {
 				return sendMessageToChannel(`Failed to ban: ${user.name}\nError: ${error}`, channel)
 			}
