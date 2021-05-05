@@ -3,54 +3,7 @@ const Discord = require('discord.js');
 const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/utils');
 
 module.exports = {
-	async banUser(client, args, [channel, guild, moderator]) {
-
-		let user = null;
-		user = getUserObjectByNameOrID(client, args[0]);
-
-		//If user is not found then warn the channel the message it was sent that their format is probably wrong
-		if(user == null) {
-			try{
-				channel.send("User not found \n Please use the format of 'USER#0000' or make sure the ID set correctly")
-			}
-			catch(error){
-				console.log('Unable to send message to the channel');
-			}
-			return
-		};
-
-		//Make this modifiable later to point where to log this ban
-		args.shift();
-		let banReason = args.join(' ');
-		if(banReason.length <= 0) banReason = "No reason given";
-
-		let banEmbed = new Discord.MessageEmbed();
-        banEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
-		banEmbed.setThumbnail(user.avatarURL());
-        banEmbed.setTitle(`USER HAS BEEN BANNED`);
-        banEmbed.setDescription('Reason: ' + banReason);
-        banEmbed.setColor('#FF1111');
-		banEmbed.setFooter(`User ID: ${user.id}`);
-        banEmbed.setTimestamp();
-		
-		try {
-			await user.send(`You have banned from **${guild.name}** \nReason: ${banReason}`);
-			await guild.members.ban(user, { banReason });
-		} catch (error) {
-			return channel.send(`Failed to ban: ${error}`);
-		}
-
-		return channel.send(banEmbed);
-	},
-
-	/*
-		client: Discord client instance
-		args: the IDs to be banned and the reason for the ban
-		channel: the channel the ban command was issued from
-		guild: the current server being used
-		moderator: the user who initiated the ban
-	*/
-	async massBan(client, args, message) {
+	async banUsers(client, args, message) {
 
 		//!ban 2347239479237492 i just wanted to
 		//console.log(members);

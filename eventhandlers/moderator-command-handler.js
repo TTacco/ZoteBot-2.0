@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const { client } = require('../index.js');
-const { banUser, massBan, unBanUser } = require('../commands/ban-command.js');
+const { banUsers, unBanUser } = require('../commands/ban-command.js');
 
 const allowedRoles = ['admin', 'moderators'];
 
@@ -31,10 +31,8 @@ client.on('message', message => {
         case 'ban':
         case 'fox2':
         case 'foxtwo':
-            banUser(client, arguments, [message.channel, message.guild, message.author]);
-            break;
         case 'massban':
-            massBan(client, arguments, message);
+            banUsers(client, arguments, message);
             break;
         case 'unban':
             unBanUser(client, arguments, [message.channel, message.guild]);
