@@ -12,14 +12,14 @@ module.exports = {
     args: true,
     guildOnly: true,
     cooldown: 3,
-	async execute(client, args, message) {
+	async execute(args, message) {
 
 		let usersToBan = [];
 		let banReason = '';
 
 		while(args.length > 0){
 			let currArg = args.shift().trim();
-			let userObj = await getUserObjectByNameOrID(client, currArg, message.guild, message.channel);
+			let userObj = await getUserObjectByNameOrID(message.client, currArg, message.guild, message.channel);
 
 			if(userObj){
 				usersToBan.push(userObj);

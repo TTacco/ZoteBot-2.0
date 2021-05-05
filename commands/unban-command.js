@@ -1,11 +1,11 @@
 module.exports = {
     name: 'unban',
-	description: 'Unbans user in the specified arguement',
-    async execute(client, arguements, message) {
+	description: 'Unbans a user',
+    async execute(args, message) {
         //Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
         try {
-            await message.guild.members.unban(arguements[0]);
-            return channel.send(`Successfully unbanned <@${arguements[0]}>`);
+            await message.guild.members.unban(args[0]);
+            return channel.send(`Successfully unbanned <@${args[0]}>`);
         } catch (error) {
             let errorMessage = `Failed to unban. Error: **${error}**\n`
             if(error == 'DiscordAPIError: Unknown Ban'){

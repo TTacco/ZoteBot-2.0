@@ -18,8 +18,8 @@ client.on('message', message => {
         return;
     } 
 
-    let arguments = message.content.substr(1, message.content.length).trim().split(/\s+/);
-    let commandName = arguments.shift().toLowerCase(); 
+    let args = message.content.substr(1, message.content.length).trim().split(/\s+/);
+    let commandName = args.shift().toLowerCase(); 
     
     const command = client.commands.get(commandName)
     || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
@@ -29,13 +29,14 @@ client.on('message', message => {
         return;
     } 
 
+
     //Check whether the command isn't allowed to be called in DM
     if (command.guildOnly && message.channel.type === 'dm') {
         return message.reply('This command cannot be executed in a DM');
     }
     
     //Check if the command requires arguements
-    if (command.args && !arguments.length) {
+    if (command.args && !args.length) {
         let reply = `No valid arguements provided, ${message.author}!`;
 
         if (command.usage) {
@@ -67,7 +68,7 @@ client.on('message', message => {
 
     //Attempt to execute the command
     try {
-		command.execute(client, arguments, message);
+		command.execute(args, message);
 	} catch (error) {
 		console.error(error);
 		message.reply('Error occured on command execution.');

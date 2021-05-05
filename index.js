@@ -1,6 +1,6 @@
 var { botTokenID } = require('./resources/token.js');
-const fs = require('fs');
 const Discord = require('discord.js');
+const fs = require('fs');
 
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'GUILD_MEMBER'] });
 client.commands = new Discord.Collection();

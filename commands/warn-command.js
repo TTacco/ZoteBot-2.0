@@ -4,17 +4,17 @@ const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/
 module.exports = {
     name: 'warn',
     aliases: ['w'],
-	description: 'Warns the user including an optional arguement',
+	description: 'Warns a user',
     usage: '-user -reason',
     args: true,
     guildOnly: true,
     cooldown: 3,
-    async execute(client, arguements, message) {
+    async execute(args, message) {
         
-        let userToWarn = arguements.shift();
-        let warnReason = arguements.join(' ');
+        let userToWarn = args.shift();
+        let warnReason = args.join(' ');
 
-        let user = await getUserObjectByNameOrID(client, userToWarn, message.guild, message.channel);
+        let user = await getUserObjectByNameOrID(message.client, userToWarn, message.guild, message.channel);
         if (!user) {
             return;
         }
