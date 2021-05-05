@@ -2,8 +2,12 @@
 const Discord = require('discord.js');
 const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/utils');
 
+
+
 module.exports = {
-	async banUsers(client, args, message) {
+	name: 'ban',
+	description: 'Bans user(s) in its arguements with an optional reason arguement',
+	async execute(client, args, message) {
 
 		//!ban 2347239479237492 i just wanted to
 		//console.log(members);
@@ -53,21 +57,4 @@ module.exports = {
 			}
 		});
 	},
-
-	async unBanUser(client, arguements, [channel, guild]) {
-		//Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
-		try {
-			await guild.members.unban(arguements[0]);
-			return channel.send(`Successfully unbanned <@${arguements[0]}>`);
-		} catch (error) {
-			let errorMessage = `Failed to unban. Error: **${error}**\n`
-			if(error == 'DiscordAPIError: Unknown Ban'){
-				errorMessage += `Reason: Most likely you gave an incorrect syntax, make sure the ID is correct.`;
-			}
-			else if(error == 'DiscordAPIError: Unknown User'){
-				errorMessage += `Reason: User either doesn't exist or is already unbanned from the server.`;
-			}
-			channel.send(errorMessage);
-		}
-	}
 };

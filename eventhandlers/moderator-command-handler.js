@@ -32,10 +32,11 @@ client.on('message', message => {
         case 'fox2':
         case 'foxtwo':
         case 'massban':
-            banUsers(client, arguments, message);
+            client.commands.get('ban').execute(client, arguments, message);
             break;
         case 'unban':
-            unBanUser(client, arguments, [message.channel, message.guild]);
+            client.commands.get('unban').execute(client, arguments, message);
+    
             break;
         default:
             message.channel.send(`Unrecognized command: "${command}"`);
