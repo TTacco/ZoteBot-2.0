@@ -1,7 +1,8 @@
 var { botTokenID } = require('./resources/token.js');
 
 const Discord = require('discord.js');
-const client = new Discord.Client();
+const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'GUILD_MEMBER'] });
+
 
 client.once('ready', () => {
 	console.log('The Great! The Powerful! Zote the Mighty, has arrived!' );
@@ -15,3 +16,4 @@ require('./eventhandlers/blacklisted-words-handler.js');
 require('./eventhandlers/command-listener-handler.js'); 
 require('./eventhandlers/media-only-handler.js');
 require('./eventhandlers/auto-delete-handler.js');
+require('./eventhandlers/moderator-command-handler.js'); 
