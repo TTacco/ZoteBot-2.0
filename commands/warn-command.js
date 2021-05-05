@@ -3,7 +3,12 @@ const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/
 
 module.exports = {
     name: 'warn',
+    aliases: ['w'],
 	description: 'Warns the user including an optional arguement',
+    usage: '-user -reason',
+    args: true,
+    guildOnly: true,
+    cooldown: 3,
     async execute(client, arguements, message) {
         
         let userToWarn = arguements.shift();
@@ -11,7 +16,6 @@ module.exports = {
 
         let user = await getUserObjectByNameOrID(client, userToWarn, message.guild, message.channel);
         if (!user) {
-            message.channel.send('No user found');
             return;
         }
 
@@ -19,18 +23,17 @@ module.exports = {
             warnReason = 'No reason specified';
         }
 
-        console.log(user);
         try {
             let warnEmbed = new Discord.MessageEmbed();
-            warnEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
+            warnEmbed.setAuthor(`${user.username}#${user.discriminator}`);
             warnEmbed.setThumbnail(user.avatarURL());
-            warnEmbed.setTitle(`User Warned`);
-            warnEmbed.setDescription('Reason: ' + warnReason);
-            warnEmbed.setColor('#fcb103');
-            warnEmbed.setFooter(`User ID: ${user.id}`);
+            warnEmbed.setTitle(`M.O.H. Citation - [WARNED]`);
+            warnEmbed.setDescription('**Reason:** ' + warnReason);
+            warnEmbed.setColor('#e3c022');
+            warnEmbed.setFooter(`USER ID: ${user.id}`);
             warnEmbed.setTimestamp();
 
-            await user.send(`You have warned from **${message.guild.name}** \nReason: ${warnReason}`);
+            await user.send(`You have warned been from **${message.guild.name}** \nReason: ${warnReason}`);
             message.channel.send(warnEmbed);
         } catch (error) {
             return sendMessageToChannel(`Failed to warn: ${user.name}\nError: ${error}`, message.channel);

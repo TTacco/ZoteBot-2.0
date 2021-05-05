@@ -41,7 +41,7 @@ module.exports = {
 			channelOrigin.send("User not found, please use the format of 'USER#0000' or make sure the ID set correctly"); 				
 		}
 		else{
-			channelOrigin.send(`User ${guildMember} has been found!`);
+			//channelOrigin.send(`User ${guildMember} has been found!`);
 		}	
 
         return guildMember;

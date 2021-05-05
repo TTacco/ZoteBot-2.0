@@ -6,11 +6,14 @@ const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/
 
 module.exports = {
 	name: 'ban',
+	aliases: ['fox2','foxtwo','getrekt','destroy','b'],
 	description: 'Bans user(s) in its arguements with an optional reason arguement',
+    usage: '-user(s) -reason',
+    args: true,
+    guildOnly: true,
+    cooldown: 3,
 	async execute(client, args, message) {
 
-		//!ban 2347239479237492 i just wanted to
-		//console.log(members);
 		let usersToBan = [];
 		let banReason = '';
 
@@ -21,32 +24,30 @@ module.exports = {
 			if(userObj){
 				usersToBan.push(userObj);
 			}
+			//Assume that the arguement lists for the users is finished, and the rest is the ban reason
 			else{
-				//Assume that the arguement lists for the users is finished
 				banReason = currArg + ' ' + args.join(' ');
 				break;
-			}
-			
+			}		
 		}
 
-		console.log(`Banning ${usersToBan} for reason ${banReason}`);
-
 		if(usersToBan.length < 1) {
-			sendMessageToChannel('No specified users found in the arguement', message.channel);
 			return;
 		}  
 
+		console.log(`Banning ${usersToBan} for reason: ${banReason}`);
+  
 		if(banReason.length <= 0) banReason = "No reason specified";
 
 		usersToBan.forEach(async (user) => {						
 			try {
 				let banEmbed = new Discord.MessageEmbed();
-				banEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
+				banEmbed.setAuthor(`${user.username}#${user.discriminator}`);
 				banEmbed.setThumbnail(user.avatarURL());
-				banEmbed.setTitle(`USER HAS BEEN BANNED`);
-				banEmbed.setDescription('Reason: ' + banReason);
-				banEmbed.setColor('#FF1111');
-				banEmbed.setFooter(`User ID: ${user.id}`);
+				banEmbed.setTitle(`M.O.H. Citation - [BANNED]`);
+				banEmbed.setDescription('**Reason:** ' + banReason);
+				banEmbed.setColor('#c22f2f');
+				banEmbed.setFooter(`USER ID: ${user.id}`);
 				banEmbed.setTimestamp();
 
 				await user.send(`You have banned from **${message.guild.name}** \nReason: ${banReason}`);
