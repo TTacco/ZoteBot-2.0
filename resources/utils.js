@@ -4,30 +4,32 @@ module.exports = {
     //Finds the user via ID or via name tag and returns the user class
     async getUserObjectByNameOrID(client, userToSearch, guild, channelOrigin){
         //Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
-		let userObj;
+		let guildMember;
 		console.log(userToSearch);
 		try{
+			//Check if the user queried is an ID of the format <@!000000000000000000>
 			if(/^(<@)?!?([0-9]{18})(>)?$/.test(userToSearch)){
 				let cleanedID = userToSearch.replace(/[<>!@]/g, '').trim();
-				userObj = await client.users.fetch(cleanedID);
+				//NOTE TO SELF, UNLIKE THE OTHER CHECKS THIS ONE ALREADY RETURNS A 'USER' OBJECT
+				guildMember = await client.users.fetch(cleanedID); 
 			}
+			//Check if the user queried is a name of the format NAME#0000, find the closest similar name to it
 			else{
-				let userCollection;
-
 				if(/^.*#[0-9]{4}$/.test(userToSearch)){
-					userCollection = await guild.members.fetch();
-					userObj = userCollection.find(user => {
-						
-						 let currUser = user['user'];
-						 let fullname = currUser.username + '#'+ currUser.discriminator
-						 if(fullname === userToSearch) return user;
-						}); 
+					guildMember = guild.members.cache.find(user => {		
+						let tagname = user['user'].username + '#' + user['user'].discriminator;
+						return tagname === userToSearch;
+					});
+
+					guildMember = guildMember['user'];
 				}
+				/* Make a JSON file to enable/disable ban by nickname feature
 				else{
-					userCollection = await guild.members.fetch({query: userToSearch, limit: 1});
+					let userCollection = await guild.members.fetch({query: userToSearch, limit: 1});
 					if(userCollection != null)
-						userObj = userCollection.first();
+						guildMember = userCollection.first()['user'];
 				}
+				*/
 			}		
 		}
 		catch(error){	
@@ -35,14 +37,14 @@ module.exports = {
 		}		
 	
 		//Check if a user was acquired;
-		if(userObj == null) {
-			channelOrigin.send("User not found \nPlease use the format of 'USER#0000' or make sure the ID set correctly"); 				
+		if(!guildMember) {
+			channelOrigin.send("User not found, please use the format of 'USER#0000' or make sure the ID set correctly"); 				
 		}
 		else{
-			channelOrigin.send(`User ${userObj} has been found!`);
-		}
+			channelOrigin.send(`User ${guildMember} has been found!`);
+		}	
 
-        return userObj;
+        return guildMember;
     },
 
 	//Send a warning to the channel

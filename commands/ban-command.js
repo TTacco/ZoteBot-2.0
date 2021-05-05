@@ -54,16 +54,14 @@ module.exports = {
 
 		//!ban 2347239479237492 i just wanted to
 		//console.log(members);
-
 		let usersToBan = [];
 		let banReason = '';
 
 		while(args.length > 0){
-			let currArg = args.shift();
-			console.log("Current arguement ", currArg);
+			let currArg = args.shift().trim();
 			let userObj = await getUserObjectByNameOrID(client, currArg, message.guild, message.channel);
 
-			if(userObj != null){
+			if(userObj){
 				usersToBan.push(userObj);
 			}
 			else{
@@ -74,36 +72,31 @@ module.exports = {
 			
 		}
 
-		//console.log(`Banning ${usersToBan} for reason ${banReason}`);
-
-		return;
+		console.log(`Banning ${usersToBan} for reason ${banReason}`);
 
 		if(usersToBan.length < 1) {
-			sendMessageToChannel('No specified users found in the arguement', channel);
+			sendMessageToChannel('No specified users found in the arguement', message.channel);
 			return;
 		}  
 
 		if(banReason.length <= 0) banReason = "No reason given";
 
-		let banEmbed = new Discord.MessageEmbed();
-
-		console.log(usersToBan);
-		return;
-		usersToBan.forEach(async (user) => {
-        	banEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
-			banEmbed.setThumbnail(user.avatarURL());
-        	banEmbed.setTitle(`USER HAS BEEN BANNED`);
-        	banEmbed.setDescription('Reason: ' + banReason);
-        	banEmbed.setColor('#FF1111');
-			banEmbed.setFooter(`User ID: ${user.id}`);
-        	banEmbed.setTimestamp();
-					
+		usersToBan.forEach(async (user) => {						
 			try {
-				await user.send(`You have banned from **${guild.name}** \nReason: ${banReason}`);
-				//await guild.members.ban(user, { banReason });	
+				let banEmbed = new Discord.MessageEmbed();
+				banEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
+				banEmbed.setThumbnail(await user.avatarURL());
+				banEmbed.setTitle(`USER HAS BEEN BANNED`);
+				banEmbed.setDescription('Reason: ' + banReason);
+				banEmbed.setColor('#FF1111');
+				banEmbed.setFooter(`User ID: ${user.id}`);
+				banEmbed.setTimestamp();
+
+				await user.send(`You have banned from **${message.guild.name}** \nReason: ${banReason}`);
+				//await message.guild.members.ban(user, { banReason });	
 				message.channel.send(banEmbed);
 			} catch (error) {
-				return sendMessageToChannel(`Failed to ban: ${user.name}\nError: ${error}`, channel)
+				return sendMessageToChannel(`Failed to ban: ${user.name}\nError: ${error}`, message.channel);
 			}
 		});
 	},
