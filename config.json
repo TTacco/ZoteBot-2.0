@@ -1,4 +1,6 @@
 {
+	"prefix" : "!",
+
 	"mediaOnly" : false,
 	"mediaOnlySettings" : [
 		{"mediaOnlyChannelID" : "837605332309377056", "mediaOnlyLoggingChannelID" : ["837505202994282508", "837596563823132732"]}

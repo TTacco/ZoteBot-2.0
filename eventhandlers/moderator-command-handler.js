@@ -1,6 +1,5 @@
 const Discord = require('discord.js');
 const { client } = require('../index.js');
-const { banUsers, unBanUser } = require('../commands/ban-command.js');
 
 const allowedRoles = ['admin', 'moderators'];
 
@@ -20,13 +19,12 @@ client.on('message', message => {
     let arguments = message.content.substr(1, message.content.length).trim().split(/\s+/);
     let command = arguments.shift().toLowerCase(); 
 
-
     switch(command){
         case 'warn':
-
+            client.commands.get('warn').execute(client, arguments, message);
             break;
         case 'mute': 
-
+        
             break;
         case 'ban':
         case 'fox2':

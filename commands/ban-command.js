@@ -36,13 +36,13 @@ module.exports = {
 			return;
 		}  
 
-		if(banReason.length <= 0) banReason = "No reason given";
+		if(banReason.length <= 0) banReason = "No reason specified";
 
 		usersToBan.forEach(async (user) => {						
 			try {
 				let banEmbed = new Discord.MessageEmbed();
 				banEmbed.setAuthor(`USER: ${user.username}#${user.discriminator}`);
-				banEmbed.setThumbnail(await user.avatarURL());
+				banEmbed.setThumbnail(user.avatarURL());
 				banEmbed.setTitle(`USER HAS BEEN BANNED`);
 				banEmbed.setDescription('Reason: ' + banReason);
 				banEmbed.setColor('#FF1111');
