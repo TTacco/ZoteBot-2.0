@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/utils');
-const { aliases } = require('../resources/timemultiplier');
+const { getTimeFormatMultiplier } = require('../resources/timemultiplier');
 
 module.exports = {
     name: 'mute',
@@ -11,18 +11,15 @@ module.exports = {
     guildOnly: true,
     cooldown: 3,
     async execute(args, message) {
-        
+
         let userToMute = args.shift();
         let muteReason = '';
+        let durationInMilliseconds = 0; 
 
         let user = await getUserObjectByNameOrID(message.client, userToMute, message.guild, message.channel);
         if (!user) {
             return;
         }
-
-        console.log(aliases);
-
-        return;
 
         //Mute duration and time format
         const rgx = new RegExp( '^[0-9]+', 'g' );
@@ -31,35 +28,30 @@ module.exports = {
 
         try{
             if(mDurationArg){
-                let muteDurMillisec = 0; //mute duration in milliseconds
+                //mute duration in milliseconds so we can use it for setTimeout()
                 let duration = parseInt(mDurationArg);
                 let format = mFormatArg.toLowerCase();
-                if(['days','day','d'].includes(format)){
-                    muteDurMillisec = duration * timeMultipliers['getDayMultiplier']();
-                }
-                else if(['hours','hour','h'].includes(format)){
-                    muteDurMillisec = duration * timeMultipliers['getHourMult']();
-                }
-                else if(['minutes','minute','m'].includes(format)){
-                    muteDurMillisec = duration * timeMultipliers['getMinuteMultiplier']();
-                }
-                else if(['seconds','second','s'].includes(format)){
-                    muteDurMillisec = duration * timeMultipliers['getSecondMultiplier']();
-                }
-                else{
-                    await message.channel.send('Time format cannot be understood, please use the correct notation')
-                    return;
-                }
                 
-                
-                args.shift(); //gets rid of the current arg which contains the mute duration             
+                durationInMilliseconds = (getTimeFormatMultiplier(format) || 0) * duration;
+
+                if(durationInMilliseconds){
+                    args.shift(); //gets rid of the current arg which contains the mute duration     
+                }           
             }
         }catch(error){
             console.log(error);
         }
 
-        muteReason = (args.length)? 'No reason specified': args.join(' ');
+        muteReason = (args.length)? args.join(' ') : 'No reason specified';
 
+        console.log(`mute duration in milliseconds ${durationInMilliseconds}`)
+
+
+        setTimeout(() => {
+            message.author.send(muteReason);
+
+        }, durationInMilliseconds);
+        
         return; 
         //Assume the rest of the arguements is the reason
         try {

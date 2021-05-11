@@ -8,7 +8,6 @@ const allowedRoles = ['admin', 'moderators'];
 
 client.on('message', message => {  
 
-    //convert this into a configurable prefix later
     if (message.author.bot || !message.content.startsWith(prefix)) return;
 
     if(!message.member.roles.cache.some(role => { 
