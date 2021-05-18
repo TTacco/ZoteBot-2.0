@@ -48,3 +48,12 @@ connection.connect(function(err) {
 
 
 */
+
+//Mute reapplication
+/*
+Check database for existing dates
+get all users that are still below the millisecond delta (meaning their mute hasnt ended)
+
+
+
+*/

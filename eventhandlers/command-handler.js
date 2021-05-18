@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
-const { client } = require('../index.js');
 const { prefix } = require('../config.json');
+const { client } = require('../index.js');
 const { cooldowns } = client;
 
 

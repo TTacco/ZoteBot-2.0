@@ -1,6 +1,7 @@
 const Discord = require('discord.js');
-const { getGuildMemberByNameOrID, sleep, giveTemporaryRole } = require('../resources/utils');
-const { getTimeFormatMultiplier } = require('../resources/timemultiplier');
+const { getTimeFormatMultiplier, getGuildMemberByNameOrID, sleep} = require('../resources/helperFunctions');
+const { client } = require('../index.js');
+const { mutes } = client;
 
 module.exports = {
     name: 'mute',
@@ -14,9 +15,10 @@ module.exports = {
 
         let userToMute = args.shift();
         let muteReason = '';
-        let durationInMilliseconds = 0; 
+        let muteDurationMS = 0; 
 
-        let guildMember = await getGuildMemberByNameOrID(message.client, userToMute, message.guild, message.channel);
+        //If the GuildMember does not exist, return. (The getGuildMember function will throw the error message for us)
+        let guildMember = await getGuildMemberByNameOrID(message, userToMute, message.guild, message.channel);
         if (!guildMember) {
             return;
         }
@@ -31,35 +33,54 @@ module.exports = {
                 //mute duration in milliseconds so we can use it for setTimeout()
                 let duration = parseInt(mDurationArg);
                 let format = mFormatArg.toLowerCase();      
-                durationInMilliseconds = (getTimeFormatMultiplier(format) || 0) * duration;
-
-                if(durationInMilliseconds){
+                muteDurationMS = (getTimeFormatMultiplier(format) || 0) * duration;
+                if(muteDurationMS){
                     args.shift(); //gets rid of the current arg which contains the mute duration     
                 }           
             }
         }catch(error){
             console.log(error);
         }
-
         muteReason = (args.length)? args.join(' ') : 'No reason specified';
-        console.log(`mute duration in milliseconds ${durationInMilliseconds}`);
 
-        giveTemporaryRole(message, guildMember, 'Muted', durationInMilliseconds);
+        //Get get the mute role and the bot role, and checks if the bot has a higher role position to allow muting
+        var role = message.guild.roles.cache.find(role => role.name === 'Muted');
+        var botRole = message.guild.roles.cache.find(role => role.name === "ZoteBot");
+        if(guildMember.roles.highest.position > botRole.position){
+            message.reply("Unable to mute the user due to them having a higher role position");
+            return;
+        }
 
-        return; 
+        //Add the mute role to the GuildMember, then add an async function to remove said mute after a certain period of time
+        guildMember.roles.add(role);
+        const guildMemberID = guildMember['user'].id;
+        async function removeMute() {
+            try{
+                await sleep(muteDurationMS);
+                guildMember.roles.remove(role);
+                delete mutes[guildMemberID]; //removes the mute from the global mute pool
+            }
+            catch(err){
+                console.log(err);
+            }
+        };
+
+        //Uses the GuildMember id as the key with the mute function as the value
+        mutes[guildMemberID] = removeMute();
+
         //Assume the rest of the arguements is the reason
         try {
-            let warnEmbed = new Discord.MessageEmbed();
-            warnEmbed.setAuthor(`${guildMember.username}#${guildMember.discriminator}`);
-            warnEmbed.setThumbnail(guildMember.avatarURL());
-            warnEmbed.setTitle(`M.O.H. Citation - [WARNED]`);
-            warnEmbed.setDescription('**Reason:** ' + muteReason);
-            warnEmbed.setColor('#e3c022');
-            warnEmbed.setFooter(`USER ID: ${guildMember.id}`);
-            warnEmbed.setTimestamp();
+            let muteEmbed = new Discord.MessageEmbed();
+            muteEmbed.setAuthor(`${guildMember['user'].username}#${guildMember['user'].discriminator}`);
+            muteEmbed.setThumbnail(guildMember['user'].avatarURL());
+            muteEmbed.setTitle(`M.O.H. Citation - [MUTED]`);
+            muteEmbed.setDescription('**Reason:** ' + muteReason);
+            muteEmbed.setColor('#ff8103');
+            muteEmbed.setFooter(`USERID: ${guildMember['user'].id}`);
+            muteEmbed.setTimestamp();
 
-            await guildMember.send(`You have warned been from **${message.guild.name}** \nReason: ${muteReason}`);
-            message.channel.send(warnEmbed);
+            await guildMember.send(`You have been muted in **${message.guild.name}** \nReason: ${muteReason}`);
+            message.channel.send(muteEmbed);
         } catch (error) {
             return message.channel.send(`Failed to warn: ${guildMember.name}\nError: ${error}`, message.channel);
         }

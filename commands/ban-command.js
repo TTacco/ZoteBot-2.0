@@ -1,9 +1,7 @@
-//handles the banning of a user
 const Discord = require('discord.js');
-const { getGuildMemberByNameOrID, sendMessageToChannel } = require('../resources/utils');
+const {getGuildMemberByNameOrID} = require('../resources/helperFunctions');
 
-
-
+//handles the banning of a user
 module.exports = {
 	name: 'ban',
 	aliases: ['fox2','foxtwo','getrekt','destroy','b'],
@@ -47,14 +45,14 @@ module.exports = {
 				banEmbed.setTitle(`M.O.H. Citation - [BANNED]`);
 				banEmbed.setDescription('**Reason:** ' + banReason);
 				banEmbed.setColor('#c22f2f');
-				banEmbed.setFooter(`USER ID: ${user.id}`);
+				banEmbed.setFooter(`USERID: ${user.id}`);
 				banEmbed.setTimestamp();
 
-				await user.send(`You have banned from **${message.guild.name}** \nReason: ${banReason}`);
+				await user.send(`You have been banned from **${message.guild.name}** \nReason: ${banReason}`);
 				//await message.guild.members.ban(user, { banReason });	
 				message.channel.send(banEmbed);
 			} catch (error) {
-				return sendMessageToChannel(`Failed to ban: ${user.name}\nError: ${error}`, message.channel);
+				return message.reply(`Failed to ban: ${user.name}\nError: ${error}`, message.channel);
 			}
 		});
 	},

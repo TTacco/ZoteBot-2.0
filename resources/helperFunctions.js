@@ -1,7 +1,5 @@
-const { Client } = require("discord.js");
-
 //Finds the user via ID or via name tag and returns the user class
-async function getGuildMemberByNameOrID(client, userToSearch, guild, channelOrigin){
+async function getGuildMemberByNameOrID(message, userToSearch, guild, channelOrigin){
 	//Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
 	let guildMember;
 	console.log(userToSearch);
@@ -40,55 +38,52 @@ async function getGuildMemberByNameOrID(client, userToSearch, guild, channelOrig
 
 	//Check if a user was acquired;
 	if(!guildMember) {
-		channelOrigin.send("User not found, please use the format of 'USER#0000' or make sure the ID set correctly"); 				
+		message.channel.reply("User not found, please use the format of 'USER#0000' or make sure the ID set correctly"); 				
 	}
-	else{
-		//channelOrigin.send(`User ${guildMember} has been found!`);
-	}	
 
 	return guildMember;
 }
 
-//Send a warning to the channel remove this later
-async function sendMessageToChannel(message, channel){
-	try{
-		await channel.send(message)
-	}
-	catch(error){
-		console.log('Unable to send message to the channel');
-	}
-	return
+var getSecondMult = function(){
+    return 1000;
+}
+var getMinuteMult = function(){
+    return 60 * getSecondMult();
+}
+var getHourMult = function(){
+    return 60 * getMinuteMult();
+}
+var getDayMult = function(){
+    return 24 * getHourMult();
+}
+var getTimeFormatMultiplier = function(format){
+    if(/^(d(ays?)?)$/.test(format)){
+        return getDayMult();
+    }
+    else if(/^(h(ours?)?)$/.test(format)){
+        return getHourMult();
+    }
+    else if(/^(m(in(utes?)?s?)?)$/.test(format)){
+        return getMinuteMult();
+    }
+    else if(/^(s(ec(onds?)?)?)$/.test(format)){
+        return getSecondMult();
+    }
+    else{
+        return 0;
+    }
 }
 
 //sleep/wait function
 async function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
 }
-
-async function giveTemporaryRole(message, recipient, roleToGive, duration){
-	try{
-		var role = message.guild.roles.cache.find(role => role.name === roleToGive);
-		var botRole = message.guild.roles.cache.find(role => role.name === "ZoteBot");
-
-		//Make another restricted roles list to dynamically disallow this
-		if(roleToGive == 'Muted' && recipient.roles.highest.position > botRole.position){
-			message.reply("Unable to mute the user due to them having a higher role position");
-			return;
-		}
-
-		recipient.roles.add(role);
-		await sleep(duration);
-		recipient.roles.remove(role);
-	}
-	catch(err){
-		console.log(err);
-		return;
-	}
-}
-
 module.exports = {
     getGuildMemberByNameOrID,
-	sendMessageToChannel,
 	sleep,
-	giveTemporaryRole,
+	getSecondMult,
+    getMinuteMult,
+    getHourMult, 
+    getDayMult,
+    getTimeFormatMultiplier
 }

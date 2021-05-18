@@ -6,15 +6,34 @@ module.exports = {
         try {
             await message.guild.members.unban(args[0]);
             return channel.send(`Successfully unbanned <@${args[0]}>`);
+
         } catch (error) {
             let errorMessage = `Failed to unban. Error: **${error}**\n`
             if(error == 'DiscordAPIError: Unknown Ban'){
-                errorMessage += `Reason: Most likely you gave an incorrect syntax, make sure the ID is correct.`;
+                errorMessage += `Most likely you gave an incorrect syntax, make sure the ID is correct.`;
             }
             else if(error == 'DiscordAPIError: Unknown User'){
-                errorMessage += `Reason: User either doesn't exist or is already unbanned from the server.`;
+                errorMessage += `User either doesn't exist or is already unbanned from the server.`;
             }
-            message.channel.send(errorMessage);
+            message.reply(errorMessage);
+        }
+
+        //Embed
+        try {
+            
+
+            let unbanEmbed = new Discord.MessageEmbed();
+            unbanEmbed.setAuthor(`${guildMember['user'].username}#${guildMember['user'].discriminator}`);
+            unbanEmbed.setThumbnail(guildMember['user'].avatarURL());
+            unbanEmbed.setTitle(`M.O.H. Citation - [UNBANNED]`);
+            unbanEmbed.setColor('#ff8103');
+            unbanEmbed.setFooter(`USERID: ${guildMember['user'].id}`);
+            unbanEmbed.setTimestamp();
+
+            await guildMember.send(`You have been unbanned in **${message.guild.name}**`);
+            message.channel.send(unbanEmbed);
+        } catch (error) {
+            return message.channel.send(err);
         }
     }
 }
