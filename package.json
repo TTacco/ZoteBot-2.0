@@ -17,7 +17,8 @@
   },
   "homepage": "https://github.com/TTacco/ZoteBot-2.0#readme",
   "dependencies": {
-    "discord.js": "^12.5.3"
+    "discord.js": "^12.5.3",
+    "mysql": "^2.18.1"
   },
   "devDependencies": {
     "eslint": "^7.25.0"

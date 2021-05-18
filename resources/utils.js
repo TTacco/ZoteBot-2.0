@@ -47,7 +47,7 @@ module.exports = {
         return guildMember;
     },
 
-	//Send a warning to the channel
+	//Send a warning to the channel remove this later
     async sendMessageToChannel(message, channel){
 		try{
 			await channel.send(message)
@@ -56,5 +56,8 @@ module.exports = {
 			console.log('Unable to send message to the channel');
 		}
 		return
-    }
+    },	
+	async sleep(){
+		return new Promise(resolve => setTimeout(resolve, ms));
+	}
 }

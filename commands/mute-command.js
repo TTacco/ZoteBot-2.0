@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/utils');
+const { getUserObjectByNameOrID, sleep } = require('../resources/utils');
 const { getTimeFormatMultiplier } = require('../resources/timemultiplier');
 
 module.exports = {
@@ -43,15 +43,17 @@ module.exports = {
         }
 
         muteReason = (args.length)? args.join(' ') : 'No reason specified';
+        console.log(`mute duration in milliseconds ${durationInMilliseconds}`);
 
-        console.log(`mute duration in milliseconds ${durationInMilliseconds}`)
 
-
-        setTimeout(() => {
-            message.author.send(muteReason);
-
-        }, durationInMilliseconds);
+        function muteUser(){
+            var muteRole = member.guild.roles.cache.find(role => role.name === "Muted");
+            sleep(2000);
+            message.send(`Role found ${muteRole}`);
+        }
         
+        muteUser();
+
         return; 
         //Assume the rest of the arguements is the reason
         try {
@@ -67,7 +69,7 @@ module.exports = {
             await user.send(`You have warned been from **${message.guild.name}** \nReason: ${muteReason}`);
             message.channel.send(warnEmbed);
         } catch (error) {
-            return sendMessageToChannel(`Failed to warn: ${user.name}\nError: ${error}`, message.channel);
+            return message.channel.send(`Failed to warn: ${user.name}\nError: ${error}`, message.channel);
         }
 
     }

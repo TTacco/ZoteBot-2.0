@@ -1,10 +1,14 @@
-var { botTokenID } = require('./resources/token.js');
+var { botTokenID, databaseCredentials } = require('./resources/token.js');
 const Discord = require('discord.js');
 const fs = require('fs');
+const mysql = require('mysql');
 
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'GUILD_MEMBER'] });
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
+client.mutes = [];
+
+
 client.once('ready', () => {
 	console.log('The Great! The Powerful! Zote the Mighty, has arrived!' );
 });
@@ -23,3 +27,24 @@ const eventHandlers = fs.readdirSync('./eventhandlers').filter(file => file.ends
 for (const file of eventHandlers) {
 	require('./eventhandlers/' + file);
 }
+
+//Database connection
+/*
+let connection = mysql.createConnection({
+    host: databaseCredentials.host,
+	port: databaseCredentials.port,
+    user: databaseCredentials.user,
+    password: databaseCredentials.password,
+    database: databaseCredentials.database,
+});
+
+connection.connect(function(err) {
+	if (err) {
+	  return console.error('error: ' + err.message);
+	}
+  
+	console.log('Connected to the MySQL server.');
+  });
+
+
+*/
