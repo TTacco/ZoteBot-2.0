@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { getUserObjectByNameOrID, sleep } = require('../resources/utils');
+const { getGuildMemberByNameOrID, sleep } = require('../resources/utils');
 const { getTimeFormatMultiplier } = require('../resources/timemultiplier');
 
 module.exports = {
@@ -16,7 +16,7 @@ module.exports = {
         let muteReason = '';
         let durationInMilliseconds = 0; 
 
-        let user = await getUserObjectByNameOrID(message.client, userToMute, message.guild, message.channel);
+        let user = await getGuildMemberByNameOrID(message.client, userToMute, message.guild, message.channel);
         if (!user) {
             return;
         }
@@ -46,10 +46,13 @@ module.exports = {
         console.log(`mute duration in milliseconds ${durationInMilliseconds}`);
 
 
-        function muteUser(){
-            var muteRole = member.guild.roles.cache.find(role => role.name === "Muted");
-            sleep(2000);
-            message.send(`Role found ${muteRole}`);
+        async function muteUser(){
+            var role = message.guild.roles.cache.find(role => role.name === "Muted");
+
+
+            //console.log(message.guild.members.cache);
+            //await sleep(10000);
+            //user.removeRole(role);
         }
         
         muteUser();

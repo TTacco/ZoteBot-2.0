@@ -2,7 +2,7 @@ const { Client } = require("discord.js");
 
 module.exports = {
     //Finds the user via ID or via name tag and returns the user class
-    async getUserObjectByNameOrID(client, userToSearch, guild, channelOrigin){
+    async getGuildMemberByNameOrID(client, userToSearch, guild, channelOrigin){
         //Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
 		let guildMember;
 		console.log(userToSearch);
@@ -10,8 +10,11 @@ module.exports = {
 			//Check if the user queried is an ID of the format <@!000000000000000000>
 			if(/^(<@)?!?([0-9]{18})(>)?$/.test(userToSearch)){
 				let cleanedID = userToSearch.replace(/[<>!@]/g, '').trim();
-				//NOTE TO SELF, UNLIKE THE OTHER CHECKS THIS ONE ALREADY RETURNS A 'USER' OBJECT
-				guildMember = await client.users.fetch(cleanedID); 
+
+				guildMember = guild.members.cache.find(user => {		
+					let userID = user['user'].id;
+					return userID === userToSearch;
+				});
 			}
 			//Check if the user queried is a name of the format NAME#0000, find the closest similar name to it
 			else{
@@ -21,7 +24,8 @@ module.exports = {
 						return tagname === userToSearch;
 					});
 
-					guildMember = guildMember['user'];
+					//console.log(guildMember);
+					//guildMember = guildMember['user'];
 				}
 				/* Make a JSON file to enable/disable ban by nickname feature
 				else{
@@ -57,7 +61,9 @@ module.exports = {
 		}
 		return
     },	
-	async sleep(){
+
+	//sleep/wait function
+	async sleep(ms){
 		return new Promise(resolve => setTimeout(resolve, ms));
 	}
 }

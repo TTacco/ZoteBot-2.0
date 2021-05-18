@@ -1,6 +1,6 @@
 //handles the banning of a user
 const Discord = require('discord.js');
-const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/utils');
+const { getGuildMemberByNameOrID, sendMessageToChannel } = require('../resources/utils');
 
 
 
@@ -19,7 +19,7 @@ module.exports = {
 
 		while(args.length > 0){
 			let currArg = args.shift().trim();
-			let userObj = await getUserObjectByNameOrID(message.client, currArg, message.guild, message.channel);
+			let userObj = await getGuildMemberByNameOrID(message.client, currArg, message.guild, message.channel)['user'];
 
 			if(userObj){
 				usersToBan.push(userObj);

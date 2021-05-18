@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { getUserObjectByNameOrID, sendMessageToChannel } = require('../resources/utils');
+const { getGuildMemberByNameOrID, sendMessageToChannel } = require('../resources/utils');
 
 module.exports = {
     name: 'warn',
@@ -14,7 +14,7 @@ module.exports = {
         let userToWarn = args.shift();
         let warnReason = args.join(' ');
 
-        let user = await getUserObjectByNameOrID(message.client, userToWarn, message.guild, message.channel);
+        let user = await getGuildMemberByNameOrID(message.client, userToWarn, message.guild, message.channel)['user'];
         if (!user) {
             return;
         }

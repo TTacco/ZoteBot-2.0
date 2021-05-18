@@ -28,7 +28,6 @@ client.on('message', message => {
         return;
     } 
 
-
     //Check whether the command isn't allowed to be called in DM
     if (command.guildOnly && message.channel.type === 'dm') {
         return message.reply('This command cannot be executed in a DM');
