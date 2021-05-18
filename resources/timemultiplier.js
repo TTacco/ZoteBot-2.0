@@ -22,7 +22,6 @@ var getTimeFormatMultiplier = function(format){
         return getMinuteMult();
     }
     else if(/^(s(ec(onds?)?)?)$/.test(format)){
-        console.log(format);
         return getSecondMult();
     }
     else{
