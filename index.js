@@ -7,12 +7,11 @@ const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'GUILD_MEMB
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
 client.mutes = [];
-
-
 client.once('ready', () => {
 	console.log('The Great! The Powerful! Zote the Mighty, has arrived!' );
 });
 client.login(botTokenID);
+
 module.exports = {client: client};
 
 //Export all the commands in the command folder

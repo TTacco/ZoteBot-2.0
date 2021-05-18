@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { getGuildMemberByNameOrID, sendMessageToChannel } = require('../resources/utils');
+const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helperFunctions.js');
 
 module.exports = {
     name: 'warn',
@@ -14,8 +14,10 @@ module.exports = {
         let userToWarn = args.shift();
         let warnReason = args.join(' ');
 
-        let user = await getGuildMemberByNameOrID(message.client, userToWarn, message.guild, message.channel)['user'];
+        const guildMember = await getGuildMemberByNameOrID(userToWarn, message.guild);
+        let user = guildMember['user'] || await getUserByID(userToWarn);
         if (!user) {
+            message.reply("User specified does not exist, make sure it's in the correct format");
             return;
         }
 
@@ -24,19 +26,29 @@ module.exports = {
         }
 
         try {
-            let warnEmbed = new Discord.MessageEmbed();
-            warnEmbed.setAuthor(`${user.username}#${user.discriminator}`);
-            warnEmbed.setThumbnail(user.avatarURL());
-            warnEmbed.setTitle(`M.O.H. Citation - [WARNED]`);
-            warnEmbed.setDescription('**Reason:** ' + warnReason);
-            warnEmbed.setColor('#e3c022');
-            warnEmbed.setFooter(`USER ID: ${user.id}`);
-            warnEmbed.setTimestamp();
 
-            await user.send(`You have warned been from **${message.guild.name}** \nReason: ${warnReason}`);
-            message.channel.send(warnEmbed);
+            let warnUserEmbed = new Discord.MessageEmbed();
+            warnUserEmbed.setTitle(`You have been warned from ${message.guild.name}`);
+            warnUserEmbed.addField('Reason:', warnReason);
+            warnUserEmbed.setColor('#e3c022');
+            await user.send(warnUserEmbed);
+				//await message.guild.members.ban(user, { banReason });	//THE actual kill command.
+
+            let warnChannelEmbed = new Discord.MessageEmbed();
+            warnChannelEmbed.setTitle('M.O.H. Citation - Protocol Violated');
+            warnChannelEmbed.setThumbnail(user.avatarURL());
+            warnChannelEmbed.addFields(
+                { name: 'USER:', value: `${user.username}#${user.discriminator}`, inline: true },
+                { name: 'ID:', value: user.id, inline: true },
+                { name: 'PENALTY', value: 'Warn', inline: true },
+                { name: 'REASON', value: warnReason},
+                { name: 'ISSUED BY:', value: `${message.author.username}#${message.author.discriminator}`},
+            );
+            warnChannelEmbed.setColor('#e3c022');			
+            warnChannelEmbed.setTimestamp();
+            message.channel.send(warnChannelEmbed);
         } catch (error) {
-            return sendMessageToChannel(`Failed to warn: ${user.name}\nError: ${error}`, message.channel);
+            return message.reply(`Failed to warn: ${user.name}\nError: ${error}`, message.channel);
         }
 
     }

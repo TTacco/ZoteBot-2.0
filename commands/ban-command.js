@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const {getGuildMemberByNameOrID} = require('../resources/helperFunctions');
+const {getGuildMemberByNameOrID, getUserByID} = require('../resources/helperFunctions');
 
 //handles the banning of a user
 module.exports = {
@@ -17,7 +17,8 @@ module.exports = {
 
 		while(args.length > 0){
 			let currArg = args.shift().trim();
-			let userObj = await getGuildMemberByNameOrID(message.client, currArg, message.guild, message.channel)['user'];
+			const guildMember = await getGuildMemberByNameOrID(userToWarn, message.guild);
+        	let userObj = guildMember['user'] || await getUserByID(userToWarn);
 
 			if(userObj){
 				usersToBan.push(userObj);
@@ -30,6 +31,7 @@ module.exports = {
 		}
 
 		if(usersToBan.length < 1) {
+			message.reply("User(s) specified does not exist, make sure it's in the correct format");
 			return;
 		}  
 
@@ -39,20 +41,28 @@ module.exports = {
 
 		usersToBan.forEach(async (user) => {						
 			try {
-				let banEmbed = new Discord.MessageEmbed();
-				banEmbed.setAuthor(`${user.username}#${user.discriminator}`);
-				banEmbed.setThumbnail(user.avatarURL());
-				banEmbed.setTitle(`M.O.H. Citation - [BANNED]`);
-				banEmbed.setDescription('**Reason:** ' + banReason);
-				banEmbed.setColor('#c22f2f');
-				banEmbed.setFooter(`USERID: ${user.id}`);
-				banEmbed.setTimestamp();
+				let banUserEmbed = new Discord.MessageEmbed();
+				banUserEmbed.setTitle(`You have been banned from ${message.guild.name}`);
+            	banUserEmbed.addField('Reason:', banReason);
+				banUserEmbed.setColor('#fc1717');
+				await user.send(banUserEmbed);
+				//await message.guild.members.ban(user, { banReason });	//THE actual kill command.
 
-				await user.send(`You have been banned from **${message.guild.name}** \nReason: ${banReason}`);
-				//await message.guild.members.ban(user, { banReason });	
-				message.channel.send(banEmbed);
+				let banChannelEmbed = new Discord.MessageEmbed();
+				banChannelEmbed.setTitle('M.O.H. Citation - Protocol Violated');
+				banChannelEmbed.setThumbnail(user.avatarURL());
+				banChannelEmbed.addField(`USER:`,`${user.username}#${user.discriminator}`, true);
+				banChannelEmbed.addField('ID:', user.id, true);
+				banChannelEmbed.addField('PENALTY:', 'Ban', true);
+            	banChannelEmbed.addField('REASON:', banReason);
+				banChannelEmbed.addField('ISSUED BY:', `${message.author.username}#${message.author.discriminator}`);
+				banChannelEmbed.setColor('#fc1717');			
+				//banChannelEmbed.setFooter(`USERID: ${user.id}`);
+				banChannelEmbed.setTimestamp();
+
+				message.channel.send(banChannelEmbed);
 			} catch (error) {
-				return message.reply(`Failed to ban: ${user.name}\nError: ${error}`, message.channel);
+				return message.reply(`Ban error: ${user.name}\nError: ${error}`, message.channel);
 			}
 		});
 	},

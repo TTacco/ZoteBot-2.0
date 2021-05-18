@@ -18,8 +18,9 @@ module.exports = {
         let muteDurationMS = 0; 
 
         //If the GuildMember does not exist, return. (The getGuildMember function will throw the error message for us)
-        let guildMember = await getGuildMemberByNameOrID(message, userToMute, message.guild, message.channel);
+        let guildMember = await getGuildMemberByNameOrID(userToMute, message.guild);
         if (!guildMember) {
+            message.reply("User specified does not exist, make sure it's in the correct format\nNOTE: ");
             return;
         }
 
@@ -74,7 +75,11 @@ module.exports = {
             muteEmbed.setAuthor(`${guildMember['user'].username}#${guildMember['user'].discriminator}`);
             muteEmbed.setThumbnail(guildMember['user'].avatarURL());
             muteEmbed.setTitle(`M.O.H. Citation - [MUTED]`);
-            muteEmbed.setDescription('**Reason:** ' + muteReason);
+            muteEmbed.setDescription(`Protocol Violated.`);
+            muteEmbed.addFields(
+                { name: 'Reason:', value: muteReason },
+                { name: 'Duration:', value: `${(muteDurationMS / 1000 / 60 / 60)} hours`},
+            )
             muteEmbed.setColor('#ff8103');
             muteEmbed.setFooter(`USERID: ${guildMember['user'].id}`);
             muteEmbed.setTimestamp();
@@ -82,7 +87,7 @@ module.exports = {
             await guildMember.send(`You have been muted in **${message.guild.name}** \nReason: ${muteReason}`);
             message.channel.send(muteEmbed);
         } catch (error) {
-            return message.channel.send(`Failed to warn: ${guildMember.name}\nError: ${error}`, message.channel);
+            return message.reply(`Failed to mute: ${guildMember.name}\nError: ${error}`, message.channel);
         }
 
     }

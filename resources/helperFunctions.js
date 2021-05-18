@@ -1,16 +1,22 @@
+const { client } = require('../index.js');
+
 //Finds the user via ID or via name tag and returns the user class
-async function getGuildMemberByNameOrID(message, userToSearch, guild, channelOrigin){
+async function getGuildMemberByNameOrID(userToSearch, guild){
 	//Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
 	let guildMember;
-	console.log(userToSearch);
 	try{
 		//Check if the user queried is an ID of the format <@!000000000000000000>
 		if(/^(<@)?!?([0-9]{18})(>)?$/.test(userToSearch)){
 			let cleanedID = userToSearch.replace(/[<>!@]/g, '').trim();
+
+			guildMember = guild.members.cache.get(cleanedID);
+			/*
 			guildMember = guild.members.cache.find(user => {		
 				let userID = user['user'].id;
+				console.log(`userID ${userID} |VS| ${cleanedID}`);
 				return userID === cleanedID;
 			});
+			*/
 		}
 		//Check if the user queried is a name of the format NAME#0000, find the closest similar name to it
 		else{
@@ -19,9 +25,6 @@ async function getGuildMemberByNameOrID(message, userToSearch, guild, channelOri
 					let tagname = user['user'].username + '#' + user['user'].discriminator;
 					return tagname === userToSearch;
 				});
-
-				//console.log(guildMember);
-				//guildMember = guildMember['user'];
 			}
 			/* Make a JSON file to enable/disable ban by nickname feature
 			else{
@@ -38,10 +41,32 @@ async function getGuildMemberByNameOrID(message, userToSearch, guild, channelOri
 
 	//Check if a user was acquired;
 	if(!guildMember) {
-		message.channel.reply("User not found, please use the format of 'USER#0000' or make sure the ID set correctly"); 				
+		return null;			
 	}
 
+	console.log(`GUILDMEMBER ${guildMember}`)
 	return guildMember;
+}
+
+async function getUserByID(userToSearch){
+	//Gets the user object
+	let user;
+	console.log(userToSearch);
+	try{
+		//Check if the user queried is an ID of the format <@!000000000000000000>
+		if(/^(<@)?!?([0-9]{18})(>)?$/.test(userToSearch)){
+			let cleanedID = userToSearch.replace(/[<>!@]/g, '').trim();
+			user = await client.users.fetch(cleanedID); 
+		}
+		else{
+			return null;
+		}
+	}
+	catch(err){
+		console.log(err);
+		return null;
+	}
+	return user;
 }
 
 var getSecondMult = function(){
@@ -80,6 +105,7 @@ async function sleep(ms){
 }
 module.exports = {
     getGuildMemberByNameOrID,
+	getUserByID,
 	sleep,
 	getSecondMult,
     getMinuteMult,
