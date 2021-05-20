@@ -17,9 +17,9 @@ module.exports = {
 
 		while(args.length > 0){
 			let currArg = args.shift().trim();
-			const guildMember = await getGuildMemberByNameOrID(userToWarn, message.guild);
-        	let userObj = guildMember['user'] || await getUserByID(userToWarn);
+			let userObj = await getGuildMemberByNameOrID(currArg, message.guild) || await getUserByID(currArg);
 
+			//Discord 
 			if(userObj){
 				usersToBan.push(userObj);
 			}
@@ -41,13 +41,13 @@ module.exports = {
 
 		usersToBan.forEach(async (user) => {						
 			try {
-				let banUserEmbed = new Discord.MessageEmbed();
-				banUserEmbed.setTitle(`You have been banned from ${message.guild.name}`);
-            	banUserEmbed.addField('Reason:', banReason);
-				banUserEmbed.setColor('#fc1717');
-				await user.send(banUserEmbed);
-				//await message.guild.members.ban(user, { banReason });	//THE actual kill command.
+				await message.guild.members.ban(user);						
+			} catch (error) {
+				return message.reply(`Error: ${error}`);
+			}
 
+			try{
+				//TODO refactor as its own js file
 				let banChannelEmbed = new Discord.MessageEmbed();
 				banChannelEmbed.setTitle('M.O.H. Citation - Protocol Violated');
 				banChannelEmbed.setThumbnail(user.avatarURL());
@@ -61,8 +61,14 @@ module.exports = {
 				banChannelEmbed.setTimestamp();
 
 				message.channel.send(banChannelEmbed);
+
+				let banUserEmbed = new Discord.MessageEmbed();
+				banUserEmbed.setTitle(`You have been banned from ${message.guild.name}`);
+            	banUserEmbed.addField('Reason:', banReason);
+				banUserEmbed.setColor('#fc1717');
+				await user.send(banUserEmbed);		
 			} catch (error) {
-				return message.reply(`Ban error: ${user.name}\nError: ${error}`, message.channel);
+				return message.reply(`Error: ${error}`);
 			}
 		});
 	},
