@@ -1,39 +1,70 @@
 const { client } = require('../index.js');
-const { connectionPool } = client;
+const { pool } = client;
 
-async function insertUserLog(logInfo){
+async function insertUserLog(logInfo) {
 
-    connectionPool.getConnection((err, connection) => {
-        if (err) {
-            return console.error('Error connecting to the MySQL database: ' + err.message);
-          }
+  let query1 = `SELECT EXISTS(SELECT * FROM users_id WHERE user_id = '${logInfo.id}' LIMIT 1)`;
+  let query2 = `INSERT INTO users_id (user_id) VALUES ('${logInfo.id}')`;
 
-        //let userExistsQuery = `SELECT EXISTS(SELECT 1 FROM users_id WHERE user_id = 188570394012286978 LIMIT 1)`;
-        //let userExistsQuery = `SELECT * FROM users_id;`;
-        let userExistsQuery = `SELECT EXISTS(SELECT * FROM users_id WHERE user_id = '188570394012286978' LIMIT 1)`;
-        
-        connection.query(userExistsQuery, function (err, result) {
-            if (err) throw err;
-            
-            if(Object.values(result[0]) > 0) console.log("User exists in the DB");
-            else console.log("User does not exist in the DB");
+  /*
+  function test(cb){
+    function closure(){
+      connection.release();
+      cb.apply(this, arguments);
+    };
+
+    return closure;
+  }
+
+  let callback = test;
+  callback(callback);
+  */
+  
+  //1. Check if the user has already added to the primary users_ids table, if so, add them first
+
+  try {
+    pool.getConnection((err, con) => {
+      if (err) {
+        return console.error('Error connecting to the MySQL database: ' + err.message);
+      };
+
+      //Query to check if the user exists, if not, add them to the database
+      con.query(query1, (err, rows) => {
+        if (err){
+          con.release();
+          throw qryErr;
+        };
+
+        if(!(Object.values(rows[0]) > 0)){
+          console.log('USER DOES NOT EXIST');
+          
+          //Query to insert the unknown ID 
+          con.query(query2, (err) => {
+            if (err){
+              con.release();
+              throw qryErr;
+            };
+
+            console.log(`SUCCESSFULLY ADDED USER ID:${logInfo.id} TO THE DATABASE`);
           });
+        };
 
-        //1. Check if the user has already added to the primary users_ids table, if so, add them first
+      });
 
-        //2. Add the log 
-        //let query = `INSERT INTO customers (name, address) VALUES ('Company Inc', 'Highway 37')`;
-
-
-        connection.release();
-    }); 
+      //2. Add the log 
 
 
+
+      con.release();
+    });
+  }
+  catch (err) {
+    console.log(err);
+  }
 }
 
 
 
 module.exports = {
-    insertUserLog,
-    //insertMuteDuration,
+  insertUserLog
 }

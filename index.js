@@ -29,7 +29,7 @@ for (const file of eventHandlers) {
 
 //Database connection
 
-client.connectionPool = mysql.createPool({
+client.pool = mysql.createPool({
 	connectionLimit : 10,
     host: databaseCredentials.host,
 	port: databaseCredentials.port,
@@ -58,7 +58,6 @@ get all users that are still below the millisecond delta (meaning their mute has
 
 const { insertUserLog } = require('./resources/databaseQueryHelper.js');
 
+let logInfo = {id: 275580439115202561};
 
-
-let logInfo = {id: 188570394012286978 };
 insertUserLog(logInfo);
