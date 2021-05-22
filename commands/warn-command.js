@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helperFunctions.js');
+const { addUserLog } = require('../resources/databaseQueryHelper.js');
 
 module.exports = {
     name: 'warn',
@@ -26,12 +27,6 @@ module.exports = {
         }
 
         try {
-
-            let warnUserEmbed = new Discord.MessageEmbed();
-            warnUserEmbed.setTitle(`You have been warned from ${message.guild.name}`);
-            warnUserEmbed.addField('Reason:', warnReason);
-            warnUserEmbed.setColor('#e3c022');
-            await user.send(warnUserEmbed);
 				//await message.guild.members.ban(user, { banReason });	//THE actual kill command.
 
             let warnChannelEmbed = new Discord.MessageEmbed();
@@ -47,9 +42,24 @@ module.exports = {
             warnChannelEmbed.setColor('#e3c022');			
             warnChannelEmbed.setTimestamp();
             message.channel.send(warnChannelEmbed);
+    
+            let warnUserEmbed = new Discord.MessageEmbed();
+            warnUserEmbed.setTitle(`You have been warned from ${message.guild.name}`);
+            warnUserEmbed.addField('Reason:', warnReason);
+            warnUserEmbed.setColor('#e3c022');
+            await user.send(warnUserEmbed);
         } catch (error) {
             return message.reply(`Failed to warn: ${user.name}\nError: ${error}`, message.channel);
         }
+
+        let logInfo = {
+            log_type: "WARN",
+            log_username: (user.username+'#'+user.discriminator),
+            log_reason: warnReason,
+            log_user_id: user.id, 
+        };
+
+        addUserLog(logInfo);
 
     }
 }

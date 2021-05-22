@@ -1,21 +1,18 @@
 const { client } = require('../index.js');
-const { pool } = client;
 
-async function insertUserLog(logInfo) {
-  //let query2 = `INSERT INTO users_id (user_id) VALUES ('${logInfo.id}')`;
-
-
-  //let err = await checkIfUserExists(logInfo);
+async function addUserLog(logInfo) {
+  let insertLogQuery = `INSERT INTO users_log (log_type, log_username, log_reason, log_date, log_user_id)` + 
+                ` VALUES ('${logInfo.log_type}', '${logInfo.log_username}', '${logInfo.log_reason}', NOW(), '${logInfo.log_user_id}')`;
 
   let asyncCon = await getAsyncConnection().catch((err) => {
     console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
-    return;
   });
 
-  try {
-    let result = await useAsyncQuery(asyncCon, `SELECT EXISTS(SELECT * FROM users_id WHERE user_id = '${logInfo.id}' LIMIT 1)`);
+  if(!asyncCon) return;
 
-    console.log(result);
+  try {
+    checkIfUserExists(asyncCon, logInfo.id);
+    await useAsyncQuery(asyncCon, insertLogQuery)
   }
   catch (err) {
     console.log(err);
@@ -26,61 +23,23 @@ async function insertUserLog(logInfo) {
 
 }
 
-async function checkIfUserExists(logInfo) {
+//Checks whether the ID given already exists in the DB, if not, add it
+async function checkIfUserExists(connection, userid) {
 
-  let query1 = `SELECT EXISTS(SELECT * FROM users_id WHERE user_id = '${logInfo.id}' LIMIT 1)`;
-  let noErrors = true;
+  const existQuery = `SELECT EXISTS(SELECT * FROM users_id WHERE user_id = '${userid}' LIMIT 1)`;
+  const insertQuery = `INSERT INTO users_id (user_id) VALUES ('${userid}')`;
 
-  //1. Check if the user has already added to the primary users_ids table, if so, add them first
-  pool.getConnection((err, con) => {
-    try {
-      if (err) {
-        return console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err.message);
-      };
-
-      //Query to check if the user exists, if not, add them to the database
-      con.query(query1, (err, rows) => {
-        if (err) {
-          con.release();
-          throw qryErr;
-        };
-
-        if (!(Object.values(rows[0]) > 0)) {
-          console.log('[DBQueryHelper] User does not exist in the database and will be added.');
-
-          //Query to insert the unknown ID 
-          con.query(query2, (err) => {
-            if (err) {
-              con.release();
-              throw qryErr;
-            };
-
-            console.log(`[DBQueryHelper] Successfully added ID:${logInfo.id} to the database`);
-          });
-        }
-        else {
-          console.log('[DBQueryHelper] User already exists');
-        }
-
-      });
-
-
-    }
-    catch (err) {
-      console.error('[DBQueryHelper] ' + err);
-      noErrors = false;
-    }
-    finally {
-      con.release();
-      return noErrors;
-    }
-  });
-
+    let user = await useAsyncQuery(connection, existQuery); //Query if the user exists
+    if (!(Object.values(user[0]) > 0)) {
+      console.log('User does not exist, and will be added to the DB');
+      await useAsyncQuery(connection, insertQuery);
+      console.log('Succesfully added user to the DB'); 
+    } 
 }
 
 let getAsyncConnection = () => {
   return new Promise((resolve, reject) => {
-    pool.getConnection((err, connection) => {
+    client.pool.getConnection((err, connection) => {
       if (err) reject(err);
       else resolve(connection);
     });
@@ -97,7 +56,7 @@ let useAsyncQuery = (con, query) => {
 };
 
 module.exports = {
-  insertUserLog,
+  addUserLog,
   checkIfUserExists,
   getAsyncConnection,
   useAsyncQuery,

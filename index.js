@@ -28,7 +28,6 @@ for (const file of eventHandlers) {
 }
 
 //Database connection
-
 client.pool = mysql.createPool({
 	connectionLimit : 10,
     host: databaseCredentials.host,
@@ -38,26 +37,4 @@ client.pool = mysql.createPool({
     database: databaseCredentials.database,
 });
 
-/*
-client.connectionPool.getConnection(function(err) {
-	if (err) {
-	  return console.error('Error connecting to the MySQL database: ' + err.message);
-	}
-
-	console.log('Successfully connected to the MySQL database.');
-  });
-*/
-
-
-
-//Mute reapplication
-/*
-Check database for existing dates
-get all users that are still below the millisecond delta (meaning their mute hasnt ended)
-*/
-
-const { insertUserLog } = require('./resources/databaseQueryHelper.js');
-
-let logInfo = {id: 167275883684560900 };
-
-insertUserLog(logInfo);
+//console.log(client.pool);
