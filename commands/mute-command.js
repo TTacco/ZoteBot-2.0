@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const { getTimeFormatMultiplier, getGuildMemberByNameOrID, sleep} = require('../resources/helperFunctions');
 const { client } = require('../index.js');
 const { mutes } = client;
+const { addUserLog, addMuteEnd } = require('../resources/databaseQueryHelper.js');
 
 module.exports = {
     name: 'mute',
@@ -59,7 +60,7 @@ module.exports = {
             try{
                 await sleep(muteDurationMS);
                 guildMember.roles.remove(role);
-                delete mutes[guildMemberID]; //removes the mute from the global mute pool
+                delete mutes[guildMemberID]; //removes the mute from the global mute var
             }
             catch(err){
                 console.log(err);
@@ -68,20 +69,21 @@ module.exports = {
 
         //Uses the GuildMember id as the key with the mute function as the value
         mutes[guildMemberID] = removeMute();
+        let user = guildMember['user'];
 
         //Assume the rest of the arguements is the reason
         try {
             let muteEmbed = new Discord.MessageEmbed();
-            muteEmbed.setAuthor(`${guildMember['user'].username}#${guildMember['user'].discriminator}`);
-            muteEmbed.setThumbnail(guildMember['user'].avatarURL());
+            muteEmbed.setAuthor(`${user.username}#${user.discriminator}`);
+            muteEmbed.setThumbnail(user.avatarURL());
             muteEmbed.setTitle(`M.O.H. Citation - [MUTED]`);
             muteEmbed.setDescription(`Protocol Violated.`);
             muteEmbed.addFields(
                 { name: 'Reason:', value: muteReason },
-                { name: 'Duration:', value: `${(muteDurationMS / 1000 / 60 / 60)} hours`},
+                { name: 'Duration:', value: `${(muteDurationMS / 1000 / 60 / 60).toFixed(1)} hours`},
             )
             muteEmbed.setColor('#ff8103');
-            muteEmbed.setFooter(`USERID: ${guildMember['user'].id}`);
+            muteEmbed.setFooter(`USERID: ${user.id}`);
             muteEmbed.setTimestamp();
 
             await guildMember.send(`You have been muted in **${message.guild.name}** \nReason: ${muteReason}`);
@@ -90,5 +92,16 @@ module.exports = {
             return message.reply(`Failed to mute: ${guildMember.name}\nError: ${error}`, message.channel);
         }
 
+        let logInfo = {
+            log_type: "MUTE",
+            log_username: (user.username+'#'+user.discriminator),
+            log_reason: muteReason,
+            log_user_id: guildMemberID, 
+        };
+    
+        await addUserLog(logInfo);
+        await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);
+
+        
     }
 }

@@ -37,4 +37,4 @@ client.pool = mysql.createPool({
     database: databaseCredentials.database,
 });
 
-//console.log(client.pool);
+//Resume Mutes
