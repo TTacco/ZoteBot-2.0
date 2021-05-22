@@ -58,6 +58,6 @@ get all users that are still below the millisecond delta (meaning their mute has
 
 const { insertUserLog } = require('./resources/databaseQueryHelper.js');
 
-let logInfo = {id: 275580439115202561};
+let logInfo = {id: 167275883684560900 };
 
 insertUserLog(logInfo);
