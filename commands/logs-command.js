@@ -43,7 +43,7 @@ module.exports = {
             let initLogsToDisplay = userLogs_local.slice(lowerBound, lowerBound + 5);
 
             try {
-                logDisplayMessage_local.edit(createLogEmbed(initLogsToDisplay));
+                logDisplayMessage_local.edit(createLogEmbed(initLogsToDisplay, 0));
             }
             catch (err) {
                 console.error("Unable to create log embedding ", err);
@@ -61,21 +61,24 @@ module.exports = {
                 if (prevLowerBound === lowerBound) return;
 
                 let logSnippet = userLogs_local.slice(lowerBound, (lowerBound + 5));
-                logDisplayMessage_local.edit(createLogEmbed(logSnippet));
+                logDisplayMessage_local.edit(createLogEmbed(logSnippet, lowerBound));
+                
 
             }
 
-            function createLogEmbed(logsToDisplay) {
+            function createLogEmbed(logsToDisplay, lowerB) {
                 let logEmbed = new Discord.MessageEmbed();
                 logEmbed.setTitle(`M.O.H. TRANSCRIPT OF RECORDS`);
                 logEmbed.setDescription(`Transcript For User: ${user.username + '#' + user.discriminator}`);
                 logEmbed.setColor(`#963499`);
 
+                let totalLogsLen = userLogs_local.length;
+
                 for (i = 0; i < logsToDisplay.length; i++) {
                     let row = logsToDisplay[i];
 
-                    logEmbed.addField('[LOG#]', `${row.log_id}`, true);
-                    logEmbed.addField('[TYPE]', `${row.log_type}`, true);
+                    logEmbed.addField('[LOG#]', `**${row.log_id}**`, true);
+                    logEmbed.addField('[TYPE]', `**${row.log_type}**`, true);
 
                     //console.log(new Date(row.log_date).toISOString);
                     let date = new Date(row.log_date);
@@ -83,10 +86,14 @@ module.exports = {
                     let details =
                         `- **User**:\ ${row.log_username}\n`
                         + `- **Reason**:\ "${row.log_reason}"\n`
-                        + `- **Date**:\ ${dateString}\n\n`;
+                        + `- **Date**:\ (${dateString})\n\n`;
                     if (i !== (logsToDisplay.length - 1)) details += `-`.repeat(55);
 
                     logEmbed.addField('[DETAILS]', details);
+                    
+                    //Get the upperbound value to display
+                    let upperB = ((lowerB+5) > totalLogsLen)? totalLogsLen : lowerB+5;
+                    logEmbed.setFooter(`Showing ${lowerB}~${upperB} out of ${totalLogsLen} total logs.`);
                 }
 
                 return logEmbed;

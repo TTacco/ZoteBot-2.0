@@ -50,7 +50,7 @@ async function addMuteEnd(muteEnd, id) {
 
 async function retrieveUserLogs(logUserID) {
   console.log("Add User Log");
-  let retrieveQuery = `SELECT * FROM users_log WHERE log_user_id = ${logUserID}`;
+  let retrieveQuery = `SELECT * FROM users_log WHERE log_user_id = ${logUserID} ORDER BY log_date DESC`;
 
   let asyncCon = await getAsyncConnection().catch((err) => {
     console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
