@@ -27,7 +27,7 @@ module.exports = {
         }
 
         try {
-				//await message.guild.members.ban(user, { banReason });	//THE actual kill command.
+			//await message.guild.members.ban(user, { banReason });	//THE actual kill command.
 
             let warnChannelEmbed = new Discord.MessageEmbed();
             warnChannelEmbed.setTitle('M.O.H. Citation - Protocol Violated');

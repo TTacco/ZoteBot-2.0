@@ -48,6 +48,30 @@ async function addMuteEnd(muteEnd, id) {
 
 }
 
+async function retrieveUserLogs(logUserID) {
+  console.log("Add User Log");
+  let retrieveQuery = `SELECT * FROM users_log WHERE log_user_id = ${logUserID}`;
+
+  let asyncCon = await getAsyncConnection().catch((err) => {
+    console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
+  });
+
+  if(!asyncCon) return;
+
+  try {
+    await checkIfUserExists(asyncCon, logUserID);
+    let userLogs = await useAsyncQuery(asyncCon, retrieveQuery);
+    return userLogs;
+  }
+  catch (err) {
+    console.log(err);
+  }
+  finally {
+    asyncCon.release();
+  }
+
+}
+
 //Checks whether the ID given already exists in the DB, if not, add it
 async function checkIfUserExists(connection, userid) {
 
@@ -86,4 +110,5 @@ module.exports = {
   getAsyncConnection,
   useAsyncQuery,
   addMuteEnd,
+  retrieveUserLogs
 }

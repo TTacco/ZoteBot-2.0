@@ -100,8 +100,6 @@ module.exports = {
         };
     
         await addUserLog(logInfo);
-        await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);
-
-        
+        await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
     }
 }
