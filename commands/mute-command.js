@@ -24,6 +24,7 @@ module.exports = {
             message.reply("User specified does not exist, make sure it's in the correct format\nNOTE: ");
             return;
         }
+        let user = guildMember['user'];
 
         //Mute duration and time format
         const rgx = new RegExp( '^[0-9]+', 'g' );
@@ -69,24 +70,23 @@ module.exports = {
 
         //Uses the GuildMember id as the key with the mute function as the value
         mutes[guildMemberID] = removeMute();
-        let user = guildMember['user'];
-
         //Assume the rest of the arguements is the reason
         try {
             let muteEmbed = new Discord.MessageEmbed();
-            muteEmbed.setAuthor(`${user.username}#${user.discriminator}`);
+
+            muteEmbed.setTitle('M.O.H. Citation - Protocol Violated');
             muteEmbed.setThumbnail(user.avatarURL());
-            muteEmbed.setTitle(`M.O.H. Citation - [MUTED]`);
-            muteEmbed.setDescription(`Protocol Violated.`);
             muteEmbed.addFields(
-                { name: 'Reason:', value: muteReason },
-                { name: 'Duration:', value: `${(muteDurationMS / 1000 / 60 / 60).toFixed(1)} hours`},
-            )
-            muteEmbed.setColor('#ff8103');
-            muteEmbed.setFooter(`USERID: ${user.id}`);
+                { name: 'USER:', value: `${user.username+'#'+user.discriminator}`, inline: true },
+                { name: 'ID:', value: user.id, inline: true },
+                { name: 'PENALTY', value: 'Mute', inline: true },
+                { name: 'REASON', value: muteReason},
+                { name: 'ISSUED BY:', value: `${message.author.username+'#'+message.author.discriminator}`},
+            );
+            muteEmbed.setColor('#ff8103');			
             muteEmbed.setTimestamp();
 
-            await guildMember.send(`You have been muted in **${message.guild.name}** \nReason: ${muteReason}`);
+            //await guildMember.send(`You have been muted in **${message.guild.name}** \nReason: ${muteReason}`);
             message.channel.send(muteEmbed);
         } catch (error) {
             return message.reply(`Failed to mute: ${guildMember.name}\nError: ${error}`, message.channel);
@@ -96,6 +96,7 @@ module.exports = {
             log_type: "MUTE",
             log_username: (user.username+'#'+user.discriminator),
             log_reason: muteReason,
+            log_moderator: message.author.username+'#'+message.author.discriminator,
             log_user_id: guildMemberID, 
         };
     

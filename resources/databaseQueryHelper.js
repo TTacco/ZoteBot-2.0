@@ -2,8 +2,8 @@ const { client } = require('../index.js');
 
 async function addUserLog(logInfo) {
   console.log("Add User Log");
-  let insertLogQuery = `INSERT INTO users_log (log_type, log_username, log_reason, log_date, log_user_id)` + 
-                ` VALUES ('${logInfo.log_type}', '${logInfo.log_username}', '${logInfo.log_reason}', NOW(), ${logInfo.log_user_id})`;
+  let insertLogQuery = `INSERT INTO users_log (log_type, log_username, log_reason, log_date, log_moderator, log_user_id)` + 
+                ` VALUES ('${logInfo.log_type}', '${logInfo.log_username}', '${logInfo.log_reason}', NOW(), '${logInfo.log_moderator}', ${logInfo.log_user_id})`;
 
   let asyncCon = await getAsyncConnection().catch((err) => {
     console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
@@ -49,8 +49,31 @@ async function addMuteEnd(muteEnd, id) {
 }
 
 async function retrieveUserLogs(logUserID) {
-  console.log("Add User Log");
+  console.log("Adding new User Log");
   let retrieveQuery = `SELECT * FROM users_log WHERE log_user_id = ${logUserID} ORDER BY log_date DESC`;
+
+  let asyncCon = await getAsyncConnection().catch((err) => {
+    console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
+  });
+
+  if(!asyncCon) return;
+
+  try {
+    await checkIfUserExists(asyncCon, logUserID);
+    let userLogs = await useAsyncQuery(asyncCon, retrieveQuery);
+    return userLogs;
+  }
+  catch (err) {
+    console.log(err);
+  }
+  finally {
+    asyncCon.release();
+  }
+
+}
+
+async function retrieveMutes() {
+  let retrieveQuery = `SELECT * FROM users_id WHERE mute_end > ${Date.now()} ORDER BY log_date DESC`;
 
   let asyncCon = await getAsyncConnection().catch((err) => {
     console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
@@ -110,5 +133,6 @@ module.exports = {
   getAsyncConnection,
   useAsyncQuery,
   addMuteEnd,
-  retrieveUserLogs
+  retrieveUserLogs,
+  retrieveMutes
 }

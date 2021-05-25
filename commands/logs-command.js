@@ -23,16 +23,6 @@ module.exports = {
         let userLogs = await retrieveUserLogs(user.id);
         let logDisplayMessage = await message.channel.send('Fetching userlogs...');
 
-        try {
-            //await logDisplayMessage.react('⬅️');
-            //await logDisplayMessage.react('➡️');
-       
-
-
-        } catch (error) {       
-            console.error('One of the emojis failed to react:', error);
-        }
-
         logDisplayMessage.react('⬅️').then(() => logDisplayMessage.react('➡️')).catch(error => console.error('One of the emojis failed to react:', error));
 
         //Making a closure so that it has its own local scope 'object'
@@ -84,8 +74,10 @@ module.exports = {
                     let date = new Date(row.log_date);
                     let dateString = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
                     let details =
-                        `- **User**:\ ${row.log_username}\n`
-                        + `- **Reason**:\ "${row.log_reason}"\n`
+                    
+                         `- **Reason**:\ "${row.log_reason}"\n`
+                        + `- **Username**:\ ${row.log_username}\n`
+                        + `- **Moderator**:\ ${row.log_moderator}\n`
                         + `- **Date**:\ (${dateString})\n\n`;
                     if (i !== (logsToDisplay.length - 1)) details += `-`.repeat(55);
 
@@ -93,7 +85,7 @@ module.exports = {
                     
                     //Get the upperbound value to display
                     let upperB = ((lowerB+5) > totalLogsLen)? totalLogsLen : lowerB+5;
-                    logEmbed.setFooter(`Showing ${lowerB}~${upperB} out of ${totalLogsLen} total logs.`);
+                    logEmbed.setFooter(`Showing ${lowerB+1}~${upperB} out of ${totalLogsLen} total logs.`);
                 }
 
                 return logEmbed;

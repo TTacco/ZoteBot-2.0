@@ -56,6 +56,7 @@ module.exports = {
             log_type: "WARN",
             log_username: (user.username+'#'+user.discriminator),
             log_reason: warnReason,
+            log_moderator: message.author.username+'#'+message.author.discriminator,
             log_user_id: user.id, 
         };
 
