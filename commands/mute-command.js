@@ -1,8 +1,8 @@
 const Discord = require('discord.js');
-const { getTimeFormatMultiplier, getGuildMemberByNameOrID, sleep} = require('../resources/helperFunctions');
+const { getTimeFormatMultiplier, getGuildMemberByNameOrID, sleep} = require('../resources/helper-functions.js');
 const { client } = require('../index.js');
 const { mutes } = client;
-const { addUserLog, addMuteEnd } = require('../resources/databaseQueryHelper.js');
+const { addUserLog, addMuteEnd } = require('../resources/database-query-helper.js');
 
 module.exports = {
     name: 'mute',

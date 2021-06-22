@@ -1,10 +1,10 @@
 const Discord = require('discord.js');
-const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helper-functions');
-const { addUserLog } = require('../resources/database-query-helper');
+const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helper-functions.js');
+const { addUserLog } = require('../resources/database-query-helper.js');
 
 module.exports = {
-    name: 'warn',
-    aliases: ['w'],
+    name: 'note',
+    aliases: ['n'],
 	description: 'Warns a user',
     usage: '-user -reason',
     args: true,
@@ -12,50 +12,44 @@ module.exports = {
     cooldown: 3,
     async execute(args, message) {
         
-        let userToWarn = args.shift();
-        let warnReason = args.join(' ');
+        let userToNote = args.shift();
+        let noteReason = args.join(' ');
 
-        const guildMember = await getGuildMemberByNameOrID(userToWarn, message.guild);
+        const guildMember = await getGuildMemberByNameOrID(userToNote, message.guild);
         let user = guildMember['user'] || await getUserByID(userToWarn);
         if (!user) {
             message.reply("User specified does not exist, make sure it's in the correct format");
             return;
         }
 
-        if(warnReason.length < 1){
-            warnReason = 'No reason specified';
+        if(noteReason.length < 1){
+            noteReason = 'No reason specified';
         }
 
         try {
 			//await message.guild.members.ban(user, { banReason });	//THE actual kill command.
 
-            let warnChannelEmbed = new Discord.MessageEmbed();
-            warnChannelEmbed.setTitle('M.O.H. Citation - Protocol Violated');
-            warnChannelEmbed.setThumbnail(user.avatarURL());
-            warnChannelEmbed.addFields(
+            let noteToChannelEmbed = new Discord.MessageEmbed();
+            noteToChannelEmbed.setTitle('M.O.H. Citation - Surveilance Record');
+            noteToChannelEmbed.setThumbnail(user.avatarURL());
+            noteToChannelEmbed.addFields(
                 { name: 'USER:', value: `${user.username}#${user.discriminator}`, inline: true },
                 { name: 'ID:', value: user.id, inline: true },
                 { name: 'PENALTY', value: 'Warn', inline: true },
-                { name: 'REASON', value: warnReason},
+                { name: 'REASON', value: noteReason},
                 { name: 'ISSUED BY:', value: `${message.author.username}#${message.author.discriminator}`},
             );
-            warnChannelEmbed.setColor('#e3c022');			
-            warnChannelEmbed.setTimestamp();
-            message.channel.send(warnChannelEmbed);
-    
-            let warnUserEmbed = new Discord.MessageEmbed();
-            warnUserEmbed.setTitle(`You have been warned from ${message.guild.name}`);
-            warnUserEmbed.addField('Reason:', warnReason);
-            warnUserEmbed.setColor('#e3c022');
-            await user.send(warnUserEmbed);
+            noteToChannelEmbed.setColor('#4287f5');			
+            noteToChannelEmbed.setTimestamp();
+            message.channel.send(noteToChannelEmbed);
         } catch (error) {
             return message.reply(`Failed to warn: ${user.name}\nError: ${error}`, message.channel);
         }
 
         let logInfo = {
-            log_type: "WARN",
+            log_type: "NOTE",
             log_username: (user.username+'#'+user.discriminator),
-            log_reason: warnReason,
+            log_reason: noteReason,
             log_moderator: message.author.username+'#'+message.author.discriminator,
             log_user_id: user.id, 
         };

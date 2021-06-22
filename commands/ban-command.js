@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const {getGuildMemberByNameOrID, getUserByID} = require('../resources/helperFunctions');
+const {getGuildMemberByNameOrID, getUserByID} = require('../resources/helper-functions.js');
 
 //handles the banning of a user
 module.exports = {

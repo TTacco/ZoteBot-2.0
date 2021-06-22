@@ -18,15 +18,15 @@ client.on('message', message => {
             channelDestination.send(`Something went wrong while I tried to send ${message.author.username}#${message.author.discriminator} a DM`);
         }); 
  
-        let warnUserEmbed = new Discord.MessageEmbed();
-        warnUserEmbed.setAuthor(`USER: ${message.author.username}#${message.author.discriminator}`);
-        warnUserEmbed.setThumbnail(message.author.avatarURL());
-        warnUserEmbed.setTitle(`Auto-deleted blacklisted word: "${caughtBadWords[0]}"`);
-        warnUserEmbed.setDescription(`User said: "${message}"`);
-        warnUserEmbed.setColor('#FF4444');
-        warnUserEmbed.setTimestamp();
-        warnUserEmbed.setFooter(`User ID: ${message.author.id}`);
-        channelDestination.send(warnUserEmbed);
+        let badWordEmbed = new Discord.MessageEmbed();
+        badWordEmbed.setAuthor(`USER: ${message.author.username}#${message.author.discriminator}`);
+        badWordEmbed.setThumbnail(message.author.avatarURL());
+        badWordEmbed.setTitle(`Auto-deleted blacklisted word: "${caughtBadWords[0]}"`);
+        badWordEmbed.setDescription(`User said: "${message}"`);
+        badWordEmbed.setColor('#FF4444');
+        badWordEmbed.setTimestamp();
+        badWordEmbed.setFooter(`User ID: ${message.author.id}`);
+        channelDestination.send(badWordEmbed);
         
         message.delete();
     }

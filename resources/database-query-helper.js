@@ -1,5 +1,5 @@
 const { client } = require('../index.js');
-
+//same
 async function addUserLog(logInfo) {
   console.log("Add User Log");
   let insertLogQuery = `INSERT INTO users_log (log_type, log_username, log_reason, log_date, log_moderator, log_user_id)` + 
@@ -24,9 +24,31 @@ async function addUserLog(logInfo) {
 
 }
 
+//same
+async function editUserLog(logNumber, newLog, message) {
+  console.log("Editing User Log");
+  let editLogQuery = `UPDATE users_log SET log_reason = '${newLog}' WHERE log_id=${logNumber}`;
 
+  let asyncCon = await getAsyncConnection().catch((err) => {
+    console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
+  });
+
+  if(!asyncCon) return;
+
+  try {
+    await useAsyncQuery(asyncCon, editLogQuery);
+  }
+  catch (err) {
+    console.log(err);
+  }
+  finally {
+    asyncCon.release();
+  }
+
+}
+
+//same 
 async function addMuteEnd(muteEnd, id) {
-  console.log("Mute End");
   let insertLogQuery = `UPDATE users_id SET mute_end = ${muteEnd} WHERE user_id=${id}`;
 
   let asyncCon = await getAsyncConnection().catch((err) => {
@@ -48,8 +70,9 @@ async function addMuteEnd(muteEnd, id) {
 
 }
 
+//same
 async function retrieveUserLogs(logUserID) {
-  console.log("Adding new User Log");
+  console.log("Retrieving user Log");
   let retrieveQuery = `SELECT * FROM users_log WHERE log_user_id = ${logUserID} ORDER BY log_date DESC`;
 
   let asyncCon = await getAsyncConnection().catch((err) => {
@@ -72,8 +95,34 @@ async function retrieveUserLogs(logUserID) {
 
 }
 
+async function executeQuery(query){
+  console.log("Executing query " + query);
+
+  let results = null;
+  let asyncCon = await getAsyncConnection().catch((err) => {
+    console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
+  });
+
+  if(!asyncCon) return;
+
+  try {
+    results = await useAsyncQuery(asyncCon, query);
+  }
+  catch (err) {
+    console.log(err);
+    return null;
+  }
+  finally {
+    asyncCon.release();
+  }
+
+  return results;
+}
+
+//same
 async function retrieveMutes() {
-  let retrieveQuery = `SELECT * FROM users_id WHERE mute_end > ${Date.now()} ORDER BY log_date DESC`;
+  let retrieveQuery = `SELECT user_id FROM zotedb.users_id WHERE mute_end > NOW()`;
+  //let retrieveQuery = `SELECT * FROM users_id`;
 
   let asyncCon = await getAsyncConnection().catch((err) => {
     console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
@@ -82,9 +131,10 @@ async function retrieveMutes() {
   if(!asyncCon) return;
 
   try {
-    await checkIfUserExists(asyncCon, logUserID);
-    let userLogs = await useAsyncQuery(asyncCon, retrieveQuery);
-    return userLogs;
+    let muteEnds = await useAsyncQuery(asyncCon, retrieveQuery);
+
+    //console.log("[DB QUERY] ", muteEnds);
+    return muteEnds;
   }
   catch (err) {
     console.log(err);
@@ -93,6 +143,7 @@ async function retrieveMutes() {
     asyncCon.release();
   }
 
+  return null;
 }
 
 //Checks whether the ID given already exists in the DB, if not, add it
@@ -129,9 +180,11 @@ let useAsyncQuery = (con, query) => {
 
 module.exports = {
   addUserLog,
+  editUserLog,
   checkIfUserExists,
   getAsyncConnection,
   useAsyncQuery,
+  executeQuery,
   addMuteEnd,
   retrieveUserLogs,
   retrieveMutes

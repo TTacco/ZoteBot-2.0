@@ -3,6 +3,7 @@ const { client } = require('../index.js');
 //Finds the user via ID or via name tag and returns the user class
 async function getGuildMemberByNameOrID(userToSearch, guild){
 	//Check if the arguement is the 18 character long discord ID, if it doesnt then its probably a name tag
+	userToSearch = ('' + userToSearch).trim();
 	let guildMember;
 	try{
 		//Check if the user queried is an ID of the format <@!000000000000000000>
@@ -10,13 +11,6 @@ async function getGuildMemberByNameOrID(userToSearch, guild){
 			let cleanedID = userToSearch.replace(/[<>!@]/g, '').trim();
 
 			guildMember = guild.members.cache.get(cleanedID);
-			/*
-			guildMember = guild.members.cache.find(user => {		
-				let userID = user['user'].id;
-				console.log(`userID ${userID} |VS| ${cleanedID}`);
-				return userID === cleanedID;
-			});
-			*/
 		}
 		//Check if the user queried is a name of the format NAME#0000, find the closest similar name to it
 		else{

@@ -10,5 +10,11 @@
 	"autoDelete" : false,
 	"autoDeleteSettings" : [
 			{"autoDeleteChannelID": "837591854647869460", "autoDeleteTimeout" : 5000 }
-	]
+	],
+
+	"messageChangelogSettings" : {
+			"enabled" : true,
+			"messageChangelogChannelID": ["837596563823132732"]
+	}
+
 }

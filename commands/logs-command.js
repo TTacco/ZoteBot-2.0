@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
-const { retrieveUserLogs } = require('../resources/databaseQueryHelper.js');
-const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helperFunctions.js');
+const { retrieveUserLogs } = require('../resources/database-query-helper');
+const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helper-functions.js');
 
 module.exports = {
     name: 'logs',
@@ -71,8 +71,12 @@ module.exports = {
                     logEmbed.addField('[TYPE]', `**${row.log_type}**`, true);
 
                     //console.log(new Date(row.log_date).toISOString);
+                    const monthNames = ["January", "February", "March", "April", "May", "June",
+                        "July", "August", "September", "October", "November", "December"
+                    ];
+
                     let date = new Date(row.log_date);
-                    let dateString = date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate();
+                    let dateString = date.getFullYear() + '-' + (monthNames[date.getMonth()]) + '-' + date.getDate();
                     let details =
                     
                          `- **Reason**:\ "${row.log_reason}"\n`
