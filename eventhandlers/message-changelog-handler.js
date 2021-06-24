@@ -31,8 +31,9 @@ if(config.messageChangelogSettings.enabled){
     });
     
     client.on('messageDelete', (deletedMessage) => {
-        if(deletedMessage.author.bot) return;
-        console.log(`Message was deleted ${deletedMessage}`);
+        if(deletedMessage.author.bot || deletedMessage == null) return;
+        //console.log(`Message was deleted ${deletedMessage}`);
+        console.log(deletedMessage);
         try {
             for(let i = 0; i<channelsToSend.length; i++){
                 let channelDestination = client.channels.cache.get(channelsToSend[i]);

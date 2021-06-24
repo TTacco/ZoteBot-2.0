@@ -76,7 +76,7 @@ module.exports = {
                     ];
 
                     let date = new Date(row.log_date);
-                    let dateString = date.getFullYear() + '-' + (monthNames[date.getMonth()]) + '-' + date.getDate();
+                    let dateString = (monthNames[date.getMonth()]) + ' ' + date.getDate() + ', ' + date.getFullYear() ;
                     let details =
                     
                          `- **Reason**:\ "${row.log_reason}"\n`
