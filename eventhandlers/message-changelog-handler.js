@@ -7,9 +7,8 @@ const config = require("../config.json");
 if(config.messageChangelogSettings.enabled){
     let channelsToSend = config.messageChangelogSettings.messageChangelogChannelID;
     client.on('messageUpdate', (oldMessage, newMessage) => {
-        if(oldMessage.author.bot) return;
-        console.log(`Message was edited \nOriginal: "${oldMessage}"\nNew: "${newMessage}" `);
         try {
+            if(oldMessage.author.bot || !oldMessage) return;
             for(let i = 0; i<channelsToSend.length; i++){
                 let channelDestination = client.channels.cache.get(channelsToSend[i]);
                 let messageUpdateEmbed = new Discord.MessageEmbed();
@@ -19,7 +18,9 @@ if(config.messageChangelogSettings.enabled){
                     { name: 'OLD:', value: oldMessage},
                     { name: 'NEW:', value: newMessage},
                 );
-                messageUpdateEmbed.setColor('#e4e800');			
+                messageUpdateEmbed.setColor('#e4e800');		
+                messageUpdateEmbed.setFooter(oldMessage.author.id);
+                messageUpdateEmbed.setTimestamp();	
                 channelDestination.send(messageUpdateEmbed);
             }
         } catch (error) {
@@ -31,19 +32,20 @@ if(config.messageChangelogSettings.enabled){
     });
     
     client.on('messageDelete', (deletedMessage) => {
-        if(deletedMessage.author.bot || deletedMessage == null) return;
-        //console.log(`Message was deleted ${deletedMessage}`);
-        console.log(deletedMessage);
         try {
+            if(deletedMessage.author.bot || deletedMessage == null) return;
+
             for(let i = 0; i<channelsToSend.length; i++){
                 let channelDestination = client.channels.cache.get(channelsToSend[i]);
                 let messageDeletedEmbed = new Discord.MessageEmbed();
-                messageDeletedEmbed.setTitle('Message Updated');
+                messageDeletedEmbed.setTitle('Message Deleted');
                 messageDeletedEmbed.setAuthor(`${deletedMessage.author.username}#${deletedMessage.author.discriminator}`, deletedMessage.author.avatarURL());
                 messageDeletedEmbed.addFields(
                     { name: 'DELETED: ', value: deletedMessage, inline: true},
                 );
-                messageDeletedEmbed.setColor('#e00f00');			
+                messageDeletedEmbed.setColor('#e00f00');		
+                messageDeletedEmbed.setFooter(deletedMessage.author.id);
+                messageDeletedEmbed.setTimestamp();
                 channelDestination.send(messageDeletedEmbed);
             }
         } catch (error) {

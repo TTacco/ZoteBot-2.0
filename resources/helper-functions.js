@@ -106,5 +106,5 @@ module.exports = {
     getMinuteMult,
     getHourMult, 
     getDayMult,
-    getTimeFormatMultiplier
+    getTimeFormatMultiplier,
 }

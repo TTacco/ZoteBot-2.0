@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { getTimeFormatMultiplier, getGuildMemberByNameOrID, sleep} = require('../resources/helper-functions.js');
+const { getTimeFormatMultiplier, getGuildMemberByNameOrID, msToTime, sleep} = require('../resources/helper-functions.js');
 const { client } = require('../index.js');
 const { mutes } = client;
 const { addUserLog, addMuteEnd } = require('../resources/database-query-helper.js');
@@ -26,27 +26,27 @@ module.exports = {
         }
         let user = guildMember['user'];
 
-        //Mute duration and time format
-        const rgx = new RegExp( '^[0-9]+', 'g' );
-        rgx.test(args[0]);
-        let [mDurationArg, mFormatArg]= [args[0].slice(0, rgx.lastIndex), args[0].slice(rgx.lastIndex, args[0].length)];
+        let muteDurationFormat = args[0];
+        //expect muteDurationFormat to contain the time and format ie ('24h', '3d' etc), 
+        //getTimeFormatMultiplier uses regex to check if the value is valid, otherwise null
+        try{ 
+            const rgx = new RegExp( '^[0-9]+', 'g' );
+            rgx.test(muteDurationFormat)
+            //split the time (ie 24, 3) to the format (h, d)
+            let [mDurationArg, mFormatArg]= [muteDurationFormat.slice(0, rgx.lastIndex), muteDurationFormat.slice(rgx.lastIndex, muteDurationFormat.length)];
+    
+            let duration = parseInt(mDurationArg);
+            let format = mFormatArg.toLowerCase();      
+            muteDurationMS = (getTimeFormatMultiplier(format) || 0) * duration;
+            if(muteDurationMS){
+                args.shift(); //gets rid of the current arg which contains the mute duration     
+            }           
 
-        try{
-            if(mDurationArg){
-                //mute duration in milliseconds so we can use it for setTimeout()
-                let duration = parseInt(mDurationArg);
-                let format = mFormatArg.toLowerCase();      
-                muteDurationMS = (getTimeFormatMultiplier(format) || 0) * duration;
-                if(muteDurationMS){
-                    args.shift(); //gets rid of the current arg which contains the mute duration     
-                }           
-            }
         }catch(error){
             console.log(error);
         }
-        muteReason = (args.length)? args.join(' ') : 'No reason specified';
 
-        //Get get the mute role and the bot role, and checks if the bot has a higher role position to allow muting
+        //Get the mute role and the bot role, and checks if the bot has a higher role position to allow muting
         var role = message.guild.roles.cache.find(role => role.name === 'Muted');
         var botRole = message.guild.roles.cache.find(role => role.name === "ZoteBot");
         if(guildMember.roles.highest.position > botRole.position){
@@ -68,9 +68,16 @@ module.exports = {
             }
         };
 
-        //Uses the GuildMember id as the key with the mute function as the value
-        mutes[guildMemberID] = removeMute();
-        //Assume the rest of the arguements is the reason
+        /*Uses the GuildMember id as the key with the mute function as the value
+        if the mute duration is not greater than 0, do not remove the role, as the assumption is that the user did not specify
+        a mute duration, thus permanently muting the user unless removed.
+        */
+        if(muteDurationMS){
+            mutes[guildMemberID] = removeMute();
+        }
+        //Assume the rest of the arguements is the reason for the mute
+        muteReason = (args.length)? args.join(' ') : 'No reason specified';
+
         try {
             let muteEmbed = new Discord.MessageEmbed();
 
@@ -80,7 +87,7 @@ module.exports = {
                 { name: 'USER:', value: `${user.username+'#'+user.discriminator}`, inline: true },
                 { name: 'ID:', value: user.id, inline: true },
                 { name: 'PENALTY', value: 'Mute', inline: true },
-                { name: 'REASON', value: muteReason},
+                { name: 'REASON', value: `DURATION [${(muteDurationMS)? muteDurationFormat : 'Indefinite'}] - ${muteReason}` },
                 { name: 'ISSUED BY:', value: `${message.author.username+'#'+message.author.discriminator}`},
             );
             muteEmbed.setColor('#ff8103');			
@@ -101,6 +108,9 @@ module.exports = {
         };
     
         await addUserLog(logInfo);
-        await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
+
+        //dont update the mute end if the mute is indefinite
+        if(muteDurationMS)
+            await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
     }
 }
