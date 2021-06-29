@@ -1,4 +1,5 @@
 var { blacklistedWords } = require('../resources/blacklistedwords.js');
+const { sleep } = require('../resources/helper-functions.js');
 const Discord = require('discord.js');
 const { client } = require('../index.js');
 
@@ -28,8 +29,32 @@ client.on('message', message => {
         badWordEmbed.setFooter(`User ID: ${message.author.id}`);
         channelDestination.send(badWordEmbed);
         
-        const muteCommand = client.commands.get('mute');
-        muteCommand.autoMute(message.author.id, message.guild);
+        
+        function autoMuteAccumulator(){
+            let violations = 0;   
+            return async function (){
+                violations++;   
+                console.log("Number of violations ", violations)        
+                if(violations > 2){
+                    const muteCommand = client.commands.get('mute');
+                    muteCommand.autoMute(message.author.id, message.guild);
+                    delete client.autoMuteList[message.author.id];
+                }
+
+                await sleep(10000);      
+                delete client.autoMuteList[message.author.id];
+            }
+        } 
+
+        let autoMuteInstance = client.autoMuteList[message.author.id];
+        if(!autoMuteInstance){
+            client.autoMuteList[message.author.id] = autoMuteAccumulator();
+            client.autoMuteList[message.author.id]();
+        }
+        else{
+            autoMuteInstance();
+        }
+        
 
         message.delete();
     }
