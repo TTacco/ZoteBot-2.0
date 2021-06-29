@@ -6,6 +6,7 @@ const mysql = require('mysql');
 const client = new Discord.Client({ partials: ['MESSAGE', 'CHANNEL', 'GUILD_MEMBER', 'REACTION'] });
 client.commands = new Discord.Collection();
 client.cooldowns = new Discord.Collection();
+client.automute = [];
 client.mutes = [];
 client.login(botTokenID);
 

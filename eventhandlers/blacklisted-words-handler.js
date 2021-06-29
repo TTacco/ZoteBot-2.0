@@ -15,7 +15,7 @@ client.on('message', message => {
         let channelDestination = client.channels.cache.get('837596563823132732');
 
         message.author.send(`Auto-deleted your message because it contains the blacklisted word: ${caughtBadWords[0]}`).catch(error => {
-            channelDestination.send(`Something went wrong while I tried to send ${message.author.username}#${message.author.discriminator} a DM`);
+            channelDestination.send(`Unable to send ${message.author.username}#${message.author.discriminator} a DM`);
         }); 
  
         let badWordEmbed = new Discord.MessageEmbed();
@@ -28,6 +28,9 @@ client.on('message', message => {
         badWordEmbed.setFooter(`User ID: ${message.author.id}`);
         channelDestination.send(badWordEmbed);
         
+        const muteCommand = client.commands.get('mute');
+        muteCommand.autoMute(message.author.id, message.guild);
+
         message.delete();
     }
 });
