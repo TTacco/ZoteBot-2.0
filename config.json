@@ -13,8 +13,17 @@
 	],
 
 	"messageChangelogSettings" : {
-			"enabled" : true,
-			"messageChangelogChannelID": ["837596563823132732"]
+		"enabled" : true,
+		"messageChangelogChannelID": ["837596563823132732"]
+	},
+
+	"blackListHandlerSettings" : {
+		"enabled" : true,
+		"maxViolations" : 3,
+		"violationCooldownMS" : 60000,
+		"violationMuteDurationMS" : 8.64e+7,
+		"channelToNotifyID": "837596563823132732"
 	}
 
+	
 }

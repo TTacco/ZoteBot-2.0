@@ -18,8 +18,7 @@ module.exports = {
             let userToUnmute = args.shift();
             let guildMember = await getGuildMemberByNameOrID(userToUnmute, message.guild);
             if (!guildMember) {
-                message.reply("User specified does not exist, make sure it's in the correct format\nNOTE: ");
-                return;
+                return "User specified does not exist, make sure it's in the correct format\nNOTE: "
             }
     
             //Get get the mute role 
@@ -30,11 +29,10 @@ module.exports = {
             const guildMemberID = guildMember['user'].id;
             delete mutes[guildMemberID];
     
-            message.reply("Successfully unmuted the user!");
+            return "Successfully unmuted the user!";
         }
         catch(err){
-            message.reply("Error occured while attempting to unmute user");
-            console.error(err);
+            return "Error occured while attempting to unmute user " + err;
         }
     }
 }

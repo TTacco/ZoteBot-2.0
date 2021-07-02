@@ -3,6 +3,8 @@ const { getTimeFormatMultiplier, getGuildMemberByNameOrID, sleep} = require('../
 const { client } = require('../index.js');
 const { mutes } = client;
 const { addUserLog, addMuteEnd } = require('../resources/database-query-helper.js');
+const { config } = require('../config.json');
+const unmuteCommand = require('./unmute-command.js');
 
 module.exports = {
     name: 'mute',
@@ -12,29 +14,29 @@ module.exports = {
     args: true,
     guildOnly: true,
     cooldown: 3,
-    async execute(args, message) {
+    async execute(args, message) {   
+        const guild = message.guild;
+        const author = message.author;
 
         let userToMute = args.shift();
         let muteReason = '';
         let muteDurationMS = 0; 
+        let executionResults = [];
 
         //If the GuildMember does not exist, return. (The getGuildMember function will throw the error message for us)
-        let guildMember = await getGuildMemberByNameOrID(userToMute, message.guild);
+        let guildMember = await getGuildMemberByNameOrID(userToMute, guild) || await getUserByID(userToMute);
         if (!guildMember) {
-            message.reply("User specified does not exist, make sure it's in the correct format\nNOTE: ");
-            return;
+
+            return ["User specified does not exist, make sure it's in the correct format\nNOTE: "];
         }
         let user = guildMember['user'];
 
-
         //Get the mute role and the bot role, and checks if the bot has a higher role position to allow muting
-        var role = message.guild.roles.cache.find(role => role.name === 'Muted');
-        var botRole = message.guild.roles.cache.find(role => role.name === "ZoteBot");
+        var role = guild.roles.cache.find(role => role.name === 'Muted');
+        var botRole = guild.roles.cache.find(role => role.name === "ZoteBot");
         if(guildMember.roles.highest.position > botRole.position){
-            message.reply("Unable to mute the user due to them having a higher role position");
-            return;
+            return ["Unable to mute the user due to them having a higher role position"];
         }
-
 
         //expect muteDurationFormat to contain the time and format ie ('24h', '3d' etc), 
         //getTimeFormatMultiplier uses regex to check if the value is valid, otherwise null
@@ -51,25 +53,17 @@ module.exports = {
             if(muteDurationMS){
                 args.shift(); //gets rid of the current arg which contains the mute duration     
             }           
-
         }catch(error){
-            console.log(error);
-            return;
+            muteDurationMS = 0;
         }
-
 
         //Add the mute role to the GuildMember, then add an async function to remove said mute after a certain period of time
         guildMember.roles.add(role);
         const guildMemberID = guildMember['user'].id;
-        async function removeMute() {
-            try{
-                await sleep(muteDurationMS);
-                guildMember.roles.remove(role);
-                delete mutes[guildMemberID]; //removes the mute from the global mute var
-            }
-            catch(err){
-                console.log(err);
-            }
+        async function removeMute(gm) {
+            await sleep(muteDurationMS);
+            gm.roles.remove(role);
+            delete mutes[guildMemberID]; //removes the mute from the global mute var
         };
 
         /*Uses the GuildMember id as the key with the mute function as the value
@@ -77,51 +71,61 @@ module.exports = {
         a mute duration, thus permanently muting the user unless removed.
         */
         if(muteDurationMS){
-            mutes[guildMemberID] = removeMute();
+            mutes[guildMemberID] = removeMute(guildMember);
         }
+        
         //Assume the rest of the arguements is the reason for the mute
-        muteReason = (args.length)? args.join(' ') : 'No reason specified';
-
-
-        try {
-            let muteEmbed = new Discord.MessageEmbed();
-
-            muteEmbed.setTitle('M.O.H. Citation - Protocol Violated');
-            muteEmbed.setThumbnail(user.avatarURL());
-            muteEmbed.addFields(
-                { name: 'USER:', value: `${user.username+'#'+user.discriminator}`, inline: true },
-                { name: 'ID:', value: user.id, inline: true },
-                { name: 'PENALTY', value: 'Mute', inline: true },
-                { name: 'REASON', value: `DURATION [${(muteDurationMS)? muteDurationFormat : 'Indefinite'}] - ${muteReason}` },
-                { name: 'ISSUED BY:', value: `${message.author.username+'#'+message.author.discriminator}`},
-            );
-            muteEmbed.setColor('#ff8103');			
-            muteEmbed.setTimestamp();
-
-            //await guildMember.send(`You have been muted in **${message.guild.name}** \nReason: ${muteReason}`);
-            message.channel.send(muteEmbed);
-        } catch (error) {
-            return message.reply(`Failed to send embeded: ${guildMember.name}\nError: ${error}`, message.channel);
-        }
-  
+        muteReason = (args.length)? args.join(' ') : 'No reason specified'; 
+        let moderatorName = author.username || "ZoteBot" `${author.username || "ZoteBot"}#${author.discriminator || 6819}`;
         let logInfo = {
             log_type: "MUTE",
             log_username: (user.username+'#'+user.discriminator),
             log_reason: muteReason,
-            log_moderator: message.author.username+'#'+message.author.discriminator,
+            log_moderator: (moderatorName),
             log_user_id: guildMemberID, 
         };
-    
-        await addUserLog(logInfo);
 
-        //dont update the mute end if the mute is indefinite
-        if(muteDurationMS)
+                //Add logs to the database
+        await addUserLog(logInfo);
+        //dont update the mute end column in the databse if the mute is indefinite
+        if(muteDurationMS){
             await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
+        }        
+        
+        //Add logs to the database
+        //await addUserLog(logInfo);
+        //dont update the mute end column in the databse if the mute is indefinite
+        if(muteDurationMS){
+            //await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
+        }
+    
+        let muteEmbed = new Discord.MessageEmbed();
+
+        try {   
+            await guildMember.send(`You have been muted in **${guild.name}** \nReason: ${muteReason}`);
+        }
+        catch (error){
+            executionResults.push(`Failed to send mute warning to ${guildMember.name}, recipient has DMs most likely disabled.`);
+        }
+
+        muteEmbed.setTitle('M.O.H. Citation - Protocol Violated');
+        muteEmbed.setThumbnail(user.avatarURL());
+        muteEmbed.addFields(
+            { name: 'USER:', value: `${user.username+'#'+user.discriminator}`, inline: true },
+            { name: 'ID:', value: user.id, inline: true },
+            { name: 'PENALTY', value: 'Mute', inline: true },
+            { name: 'REASON', value: `DURATION [${(muteDurationMS)? muteDurationFormat : 'Indefinite'}] - ${muteReason}` },
+            { name: 'ISSUED BY:', value: `${logInfo.log_moderator}`},
+        );
+        muteEmbed.setColor('#ff8103');			
+        muteEmbed.setTimestamp();      
+        executionResults.push(muteEmbed);
+
+        return executionResults;
     },
 
     async autoMute(userId, guild){
         //Get the GuildMember object of a specified ID
-        const muteDurationMS = 10;//8.64e+7;
         let guildMember = await getGuildMemberByNameOrID(userId, guild);
         if (!guildMember) {
             console.error("Encountered a problem with automuting a user", err);
@@ -143,36 +147,7 @@ module.exports = {
                 console.log(err);
             }
         };
-        mutes[guildMemberID] = removeMute(guildMemberID, muteDurationMS);
-
-        //Send message to user
-        try{
-            await guildMember.send(`You have been muted in **${guild.name}** \nReason: multiple bad word violations`);
-        }
-        catch(err){
-            console.log(err);
-        }
-
-        try {
-            let muteEmbed = new Discord.MessageEmbed();
-
-            muteEmbed.setTitle('M.O.H. Citation - Protocol Violated');
-            muteEmbed.setThumbnail(user.avatarURL());
-            muteEmbed.addFields(
-                { name: 'USER:', value: `${user.username+'#'+user.discriminator}`, inline: true },
-                { name: 'ID:', value: user.id, inline: true },
-                { name: 'PENALTY', value: 'Mute', inline: true },
-                { name: 'REASON', value: `DURATION [24h]- Automod bad word violation exceeded` },
-                { name: 'ISSUED BY:', value: `ZoteBot`},
-            );
-            muteEmbed.setColor('#ff8103');			
-            muteEmbed.setTimestamp();
-
-            //await guildMember.send(`You have been muted in **${message.guild.name}** \nReason: ${muteReason}`);
-            client.channels.cache.get('837596563823132732').send(muteEmbed);
-        } catch (err) {
-            console.log(err);
-        }
+        mutes[guildMemberID] = removeMute(guildMemberID, config.violationMuteDurationMS);
 
         //Add log and mute end to database
         let logInfo = {
@@ -182,7 +157,34 @@ module.exports = {
             log_moderator: 'ZoteBot',
             log_user_id: guildMemberID, 
         };
+
+        //Database handler
         await addUserLog(logInfo);
         await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);  
+
+        let muteEmbed = new Discord.MessageEmbed();
+        muteEmbed.setTitle('M.O.H. Citation - Protocol Violated');
+        muteEmbed.setThumbnail(user.avatarURL());
+        muteEmbed.addFields(
+            { name: 'USER:', value: `${user.username+'#'+user.discriminator}`, inline: true },
+            { name: 'ID:', value: user.id, inline: true },
+            { name: 'PENALTY', value: 'Mute', inline: true },
+            { name: 'REASON', value: `DURATION [24h]- Automod bad word violation exceeded` },
+            { name: 'ISSUED BY:', value: `ZoteBot`},
+        );
+        muteEmbed.setColor('#ff8103');			
+        muteEmbed.setTimestamp();
+
+        client.channels.cache.get('837596563823132732').send(muteEmbed);
+        //Send message to user
+        try{
+            await guildMember.send(`You have been muted in **${guild.name}** \nReason: multiple bad word violations`);
+            return muteEmbed;
+        }
+        catch(err){
+            return ["Unable to send DM to user", muteEmbed];
+        }
+
+
     }
 }

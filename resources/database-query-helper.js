@@ -95,10 +95,9 @@ async function retrieveUserLogs(logUserID) {
 
 }
 
-async function executeQuery(query){
+async function executeQuery(query, requiredUser){
   console.log("Executing query " + query);
 
-  let results = null;
   let asyncCon = await getAsyncConnection().catch((err) => {
     console.error('[DBQueryHelper] Error connecting to the MySQL database: ' + err);
   });
@@ -106,7 +105,8 @@ async function executeQuery(query){
   if(!asyncCon) return;
 
   try {
-    results = await useAsyncQuery(asyncCon, query);
+    let rows = await useAsyncQuery(asyncCon, query);
+    return rows;
   }
   catch (err) {
     console.log(err);
