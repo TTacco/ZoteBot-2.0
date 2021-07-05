@@ -67,9 +67,12 @@ client.on('message', message => {
     //Attempt to execute the command
     try {
 		let results = command.execute(args, message);
-        results.then((execRes) => {
-            message.channel.send(...execRes);
-        });
+        if(results){
+            results.then((res) => {
+                message.channel.send(...res);
+            });
+        }
+
 	} catch (error) {
 		console.error(error);
 		message.channel.send('Error occured on command execution.', error);

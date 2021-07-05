@@ -14,7 +14,7 @@ async function getGuildMemberByNameOrID(userToSearch, guild){
 		}
 		//Check if the user queried is a name of the format NAME#0000, find the closest similar name to it
 		else{
-			if(/^.*#[0-9]{4}$/.test(userToSearch)){
+			if(guild && /^.*#[0-9]{4}$/.test(userToSearch)){
 				guildMember = guild.members.cache.find(user => {		
 					let tagname = user['user'].username + '#' + user['user'].discriminator;
 					return tagname === userToSearch;
@@ -35,17 +35,19 @@ async function getGuildMemberByNameOrID(userToSearch, guild){
 
 	//Check if a user was acquired;
 	if(!guildMember) {
+		console.log(`GuildMember ${guildMember} not found in partials`);
 		return null;			
 	}
-
-	console.log(`GUILDMEMBER ${guildMember}`)
-	return guildMember;
+	else{
+		console.log(`GuildMember ${guildMember} found`);
+		return guildMember;
+	}
 }
 
 async function getUserByID(userToSearch){
-	//Gets the user object
+	//Gets the user object by using the fetch command itself, allowing it to get from cache
 	let user;
-	console.log(userToSearch);
+	console.log(`Fetching user ${userToSearch}`);
 	try{
 		//Check if the user queried is an ID of the format <@!000000000000000000>
 		if(/^(<@)?!?([0-9]{18})(>)?$/.test(userToSearch)){
@@ -93,6 +95,34 @@ var getTimeFormatMultiplier = function(format){
     }
 }
 
+function ISODateFormatter(dateISO, getTimeAgo = false){
+	const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+	let dateObj = new Date(dateISO);
+
+	let formattedDate = `${monthNames[dateObj.getMonth()]}-${dateObj.getDate()}-${dateObj.getFullYear()} [${dateObj.getHours()}:${dateObj.getMinutes()}:${dateObj.getSeconds()}]`;
+	let msDiff = Date.now() - dateObj.getTime();
+	//Time is less than a minute
+	if(getTimeAgo){
+		if(msDiff < 60000){
+			formattedDate += `\n${Math.floor(msDiff/1000)} second(s) ago`;
+		}
+		//Time is less than an hour
+		else if(msDiff < 3.6e+6){
+			formattedDate += `\n${Math.floor(msDiff/60000)} minute(s) ago`;
+		}
+		//Time is less than a day
+		else if(msDiff < 8.64e+7){
+			formattedDate += `\n${Math.floor(msDiff/3.6e+6)} hour(s) ago`;
+		}
+		else if(msDiff < 2.592e+9){
+			formattedDate += `\n${Math.floor(msDiff/8.64e+7)} day(s) ago`;
+		}
+	}	
+
+	return formattedDate;
+}
+
 //sleep/wait function
 async function sleep(ms){
 	return new Promise(resolve => setTimeout(resolve, ms));
@@ -107,4 +137,5 @@ module.exports = {
     getHourMult, 
     getDayMult,
     getTimeFormatMultiplier,
+	ISODateFormatter,
 }

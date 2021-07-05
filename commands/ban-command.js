@@ -12,16 +12,16 @@ module.exports = {
     cooldown: 3,
 	async execute(args, message) {
 
-		let usersToBan = [];
+		let guildMembersToBan = [];
 		let banReason = '';
+		let executionResults = [];
 
 		while(args.length > 0){
 			let currArg = args.shift().trim();
-			let userObj = await getGuildMemberByNameOrID(currArg, message.guild) || await getUserByID(currArg);
+			let guildMember = await getGuildMemberByNameOrID(currArg, message.guild) || await getUserByID(currArg);
 
-			//Discord 
-			if(userObj){
-				usersToBan.push(userObj);
+			if(guildMember){
+				guildMembersToBan.push(guildMember);
 			}
 			//Assume that the arguement lists for the users is finished, and the rest is the ban reason
 			else{
@@ -30,46 +30,48 @@ module.exports = {
 			}		
 		}
 
-		if(usersToBan.length < 1) {
-			message.reply("User(s) specified does not exist, make sure it's in the correct format");
-			return;
+		if(guildMembersToBan.length < 1) {
+			return ["User(s) specified does not exist, make sure it's in the correct format"];
 		}  
 
-		console.log(`Banning ${usersToBan} for reason: ${banReason}`);
+		console.log(`Banning ${guildMembersToBan} for reason: ${banReason}`);
   
 		if(banReason.length <= 0) banReason = "No reason specified";
 
-		usersToBan.forEach(async (user) => {						
+		guildMembersToBan.forEach(async (gm) => {	
+			let user = gm['user'];
 			try {
-				await message.guild.members.ban(user);						
+				//await message.guild.members.ban(user);						
 			} catch (error) {
-				return message.reply(`Error: ${error}`);
+				executionResults.push(`Failed to ban ${user.name} `, error);
+				return;
 			}
+		
+			//Ban notification for the channel
+			let banNotificationEmbed = new Discord.MessageEmbed();
+			banNotificationEmbed.setTitle('M.O.H. Citation - Protocol Violated');
+			banNotificationEmbed.setThumbnail(user.avatarURL());
+			banNotificationEmbed.addField(`USER:`,`${user.username}#${user.discriminator}`, true);
+			banNotificationEmbed.addField('ID:', user.id, true);
+			banNotificationEmbed.addField('PENALTY:', 'Ban', true);
+			banNotificationEmbed.addField('REASON:', banReason);
+			banNotificationEmbed.addField('ISSUED BY:', `${message.author.username}#${message.author.discriminator}`);
+			banNotificationEmbed.setColor('#fc1717');			
+			banNotificationEmbed.setTimestamp();
+			executionResults.push(banNotificationEmbed);
 
+			//Ban message to the user DMs
 			try{
-				//TODO refactor as its own js file
-				let banChannelEmbed = new Discord.MessageEmbed();
-				banChannelEmbed.setTitle('M.O.H. Citation - Protocol Violated');
-				banChannelEmbed.setThumbnail(user.avatarURL());
-				banChannelEmbed.addField(`USER:`,`${user.username}#${user.discriminator}`, true);
-				banChannelEmbed.addField('ID:', user.id, true);
-				banChannelEmbed.addField('PENALTY:', 'Ban', true);
-            	banChannelEmbed.addField('REASON:', banReason);
-				banChannelEmbed.addField('ISSUED BY:', `${message.author.username}#${message.author.discriminator}`);
-				banChannelEmbed.setColor('#fc1717');			
-				//banChannelEmbed.setFooter(`USERID: ${user.id}`);
-				banChannelEmbed.setTimestamp();
-
-				message.channel.send(banChannelEmbed);
-
-				let banUserEmbed = new Discord.MessageEmbed();
-				banUserEmbed.setTitle(`You have been banned from ${message.guild.name}`);
-            	banUserEmbed.addField('Reason:', banReason);
-				banUserEmbed.setColor('#fc1717');
-				await user.send(banUserEmbed);		
+				let banToUserEmbed = new Discord.MessageEmbed();
+				banToUserEmbed.setTitle(`You have been banned from ${message.guild.name}`);
+            	banToUserEmbed.addField('Reason:', banReason);
+				banToUserEmbed.setColor('#fc1717');
+				await user.send(banToUserEmbed);		
 			} catch (error) {
-				return message.reply(`Error: ${error}`);
+				executionResults.push(`Failed to notify ${user.name}`);
 			}
 		});
+
+		return executionResults;
 	},
 };

@@ -56,7 +56,10 @@ module.exports = {
 
             }
 
+            
             function createLogEmbed(logsToDisplay, lowerB) {
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
                 let logEmbed = new Discord.MessageEmbed();
                 logEmbed.setTitle(`M.O.H. TRANSCRIPT OF RECORDS`);
                 logEmbed.setDescription(`Transcript For User: ${user.username + '#' + user.discriminator}`);
@@ -71,12 +74,9 @@ module.exports = {
                     logEmbed.addField('[TYPE]', `**${row.log_type}**`, true);
 
                     //console.log(new Date(row.log_date).toISOString);
-                    const monthNames = ["January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December"
-                    ];
 
                     let date = new Date(row.log_date);
-                    let dateString = (monthNames[date.getMonth()]) + ' ' + date.getDate() + ', ' + date.getFullYear() ;
+                    let dateString = (monthNames[date.getMonth()]) + ' ' + date.getDate() + ', ' + date.getFullYear();
                     let details =
                     
                          `- **Reason**:\ "${row.log_reason}"\n`

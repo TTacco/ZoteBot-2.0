@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const { getTimeFormatMultiplier, getGuildMemberByNameOrID, sleep} = require('../resources/helper-functions.js');
+const { getTimeFormatMultiplier, getGuildMemberByNameOrID, getUserByID, sleep} = require('../resources/helper-functions.js');
 const { client } = require('../index.js');
 const { mutes } = client;
 const { addUserLog, addMuteEnd } = require('../resources/database-query-helper.js');
@@ -27,7 +27,7 @@ module.exports = {
         let guildMember = await getGuildMemberByNameOrID(userToMute, guild) || await getUserByID(userToMute);
         if (!guildMember) {
 
-            return ["User specified does not exist, make sure it's in the correct format\nNOTE: "];
+            return ["User specified does not exist, make sure it's in the correct format"];
         }
         let user = guildMember['user'];
 
@@ -93,10 +93,11 @@ module.exports = {
         }        
         
         //Add logs to the database
-        //await addUserLog(logInfo);
+        await addUserLog(logInfo);
+
         //dont update the mute end column in the databse if the mute is indefinite
         if(muteDurationMS){
-            //await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
+            await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
         }
     
         let muteEmbed = new Discord.MessageEmbed();
@@ -105,7 +106,7 @@ module.exports = {
             await guildMember.send(`You have been muted in **${guild.name}** \nReason: ${muteReason}`);
         }
         catch (error){
-            executionResults.push(`Failed to send mute warning to ${guildMember.name}, recipient has DMs most likely disabled.`);
+            executionResults.push(`Failed to send mute warning to ${guildMember.name}, recipient has most likely disabled DMs/blocked the bot.`);
         }
 
         muteEmbed.setTitle('M.O.H. Citation - Protocol Violated');

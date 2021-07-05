@@ -2,11 +2,8 @@ var { blacklistedWords } = require('../resources/blacklistedwords.js');
 const Discord = require('discord.js');
 const { client } = require('../index.js');
 const { sleep } = require('../resources/helper-functions.js');
-const config = require('../config.json');
+const { messageChangelogSettings : cfg } = require('../config.json');
 
-
-//Slur  detection
-const cfg = config['messageChangelogSettings'];
 if(cfg.enabled){
     client.on('message', message => {  
 
