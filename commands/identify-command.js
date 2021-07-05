@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const {getGuildMemberByNameOrID, getUserByID, ISODateFormatter} = require('../resources/helper-functions.js');
+const {getGuildMemberByNameOrID, getUserByID, ISODateFormatter} = require('../utils/helper-functions.js');
 
 module.exports = {
     name: 'identify',
@@ -17,21 +17,12 @@ module.exports = {
             return ["User specified does not exist, make sure it's in the correct format"];
         }
 
-        //Guild name ~ guildMember.displayName
-        //Tag name ~ user.name + user.discriminator
-        //ID ~ user.id 
-        //Join Date ~ guildMember.joinedAt
-        //Registration date ~ user.createdAt
-        //Roles ~ guildMember.roles
-
         const user = guildMember.user;
         const memberRoles = guildMember.roles.member._roles;
         const serverRoles = [...guildMember.guild.roles.cache.values()];
-
         let memberRolesToDisplay = serverRoles.filter((role) => {
             return memberRoles.includes(role.id);           
         });
-
 
         //Date formatter
         let createdAtFormatted = ISODateFormatter(user.createdAt, true);

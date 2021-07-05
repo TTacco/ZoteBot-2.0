@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
-const { retrieveUserLogs } = require('../resources/database-query-helper');
-const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helper-functions.js');
+const { retrieveUserLogs } = require('../utils/database-query-helper');
+const { getGuildMemberByNameOrID, getUserByID, ISODateFormatter} = require('../utils/helper-functions.js');
 
 module.exports = {
     name: 'logs',
@@ -58,8 +58,6 @@ module.exports = {
 
             
             function createLogEmbed(logsToDisplay, lowerB) {
-                const monthNames = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
                 let logEmbed = new Discord.MessageEmbed();
                 logEmbed.setTitle(`M.O.H. TRANSCRIPT OF RECORDS`);
                 logEmbed.setDescription(`Transcript For User: ${user.username + '#' + user.discriminator}`);
@@ -72,17 +70,14 @@ module.exports = {
 
                     logEmbed.addField('[LOG#]', `**${row.log_id}**`, true);
                     logEmbed.addField('[TYPE]', `**${row.log_type}**`, true);
+   
+                    let dateString = ISODateFormatter(row.log_date, true);
 
-                    //console.log(new Date(row.log_date).toISOString);
-
-                    let date = new Date(row.log_date);
-                    let dateString = (monthNames[date.getMonth()]) + ' ' + date.getDate() + ', ' + date.getFullYear();
-                    let details =
-                    
+                    let details =                  
                          `- **Reason**:\ "${row.log_reason}"\n`
                         + `- **Username**:\ ${row.log_username}\n`
                         + `- **Moderator**:\ ${row.log_moderator}\n`
-                        + `- **Date**:\ (${dateString})\n\n`;
+                        + `- **Date**:\ ${dateString}\n\n`;
                     if (i !== (logsToDisplay.length - 1)) details += `-`.repeat(55);
 
                     logEmbed.addField('[DETAILS]', details);

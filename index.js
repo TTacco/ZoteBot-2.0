@@ -1,4 +1,4 @@
-const { botTokenID, databaseCredentials } = require('./resources/token.js');
+const { botTokenID, databaseCredentials } = require('./utils/token.js');
 const Discord = require('discord.js');
 const fs = require('fs');
 const mysql = require('mysql');

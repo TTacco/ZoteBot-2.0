@@ -28,6 +28,11 @@
 	"banAnnouncementSettings" : {
 		"enabled" : true,
 		"channelToNotifyID" : [837596563823132732]
+	},
+
+	"commandHandlerSetings" : {
+		"enabled" : true,
+		"allowedRoleNames": ["admin","moderator"]
 	}
 
 }

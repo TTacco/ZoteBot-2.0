@@ -13,8 +13,7 @@ if(cfg.enabled){
 			banNotificationEmbed.addField('ISSUED BY:', `${message.author.username}#${message.author.discriminator}`);
 			banNotificationEmbed.setColor('#fc1717');			
 			banNotificationEmbed.setTimestamp();
-			
-            
-            cfg.channelToNotifyID
+			      
+			//anounce banNotification to a channel in the CFG
     });
 }

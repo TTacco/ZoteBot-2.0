@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
-const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helper-functions');
-const { addUserLog } = require('../resources/database-query-helper');
+const { getGuildMemberByNameOrID, getUserByID } = require('../utils/helper-functions');
+const { addUserLog } = require('../utils/database-query-helper');
 
 module.exports = {
     name: 'warn',

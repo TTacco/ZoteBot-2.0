@@ -1,10 +1,9 @@
 const Discord = require('discord.js');
-const { getTimeFormatMultiplier, getGuildMemberByNameOrID, getUserByID, sleep} = require('../resources/helper-functions.js');
+const { getTimeFormatMultiplier, getGuildMemberByNameOrID, getUserByID, sleep} = require('../utils/helper-functions.js');
 const { client } = require('../index.js');
 const { mutes } = client;
-const { addUserLog, addMuteEnd } = require('../resources/database-query-helper.js');
+const { addUserLog, addMuteEnd } = require('../utils/database-query-helper.js');
 const { config } = require('../config.json');
-const unmuteCommand = require('./unmute-command.js');
 
 module.exports = {
     name: 'mute',

@@ -1,6 +1,6 @@
 const { client } = require('../index.js');
-const { retrieveMutes } = require('../resources/database-query-helper');
-const { getGuildMemberByNameOrID, sleep } = require('../resources/helper-functions.js');
+const { retrieveMutes } = require('../utils/database-query-helper');
+const { getGuildMemberByNameOrID, sleep } = require('../utils/helper-functions.js');
 
 
 client.once('ready', () => {

@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
-const { executeQuery } = require('../resources/database-query-helper.js');
-const { getGuildMemberByNameOrID, getUserByID } = require('../resources/helper-functions.js');
+const { executeQuery } = require('../utils/database-query-helper.js');
+const { getGuildMemberByNameOrID, getUserByID } = require('../utils/helper-functions.js');
 
 module.exports = {
     name: 'editlog',

@@ -1,7 +1,7 @@
-var { blacklistedWords } = require('../resources/blacklistedwords.js');
+var { blacklistedWords } = require('../utils/blacklistedwords.js');
 const Discord = require('discord.js');
 const { client } = require('../index.js');
-const { sleep } = require('../resources/helper-functions.js');
+const { sleep } = require('../utils/helper-functions.js');
 const { messageChangelogSettings : cfg } = require('../config.json');
 
 if(cfg.enabled){
