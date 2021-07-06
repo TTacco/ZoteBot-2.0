@@ -92,7 +92,7 @@ module.exports = {
         }
 
         try {
-            let receivedReactions = await logDisplayMessage.awaitReactions(onMessageReact(userLogs, logDisplayMessage), { time: 40000, errors: ['time'] });
+            await logDisplayMessage.awaitReactions(onMessageReact(userLogs, logDisplayMessage), { time: 40000, errors: ['time'] });
         }
         catch (err) {
             console.log("Done collecting emotes");

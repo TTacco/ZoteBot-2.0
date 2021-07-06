@@ -14,6 +14,7 @@ module.exports = {
     guildOnly: true,
     cooldown: 3,
     async execute(args, message) {   
+
         const guild = message.guild;
         const author = message.author;
 
@@ -25,8 +26,7 @@ module.exports = {
         //If the GuildMember does not exist, return. (The getGuildMember function will throw the error message for us)
         let guildMember = await getGuildMemberByNameOrID(userToMute, guild) || await getUserByID(userToMute);
         if (!guildMember) {
-
-            return ["User specified does not exist, make sure it's in the correct format"];
+            return "User specified does not exist, make sure it's in the correct format";
         }
         let user = guildMember['user'];
 
@@ -34,7 +34,7 @@ module.exports = {
         var role = guild.roles.cache.find(role => role.name === 'Muted');
         var botRole = guild.roles.cache.find(role => role.name === "ZoteBot");
         if(guildMember.roles.highest.position > botRole.position){
-            return ["Unable to mute the user due to them having a higher role position"];
+            return "Unable to mute the user due to them having a higher role position";
         }
 
         //expect muteDurationFormat to contain the time and format ie ('24h', '3d' etc), 
@@ -84,20 +84,12 @@ module.exports = {
             log_user_id: guildMemberID, 
         };
 
-                //Add logs to the database
+        //Add logs to the database
         await addUserLog(logInfo);
         //dont update the mute end column in the databse if the mute is indefinite
         if(muteDurationMS){
             await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
         }        
-        
-        //Add logs to the database
-        await addUserLog(logInfo);
-
-        //dont update the mute end column in the databse if the mute is indefinite
-        if(muteDurationMS){
-            await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);      
-        }
     
         let muteEmbed = new Discord.MessageEmbed();
 
@@ -122,69 +114,5 @@ module.exports = {
         executionResults.push(muteEmbed);
 
         return executionResults;
-    },
-
-    async autoMute(userId, guild){
-        //Get the GuildMember object of a specified ID
-        let guildMember = await getGuildMemberByNameOrID(userId, guild);
-        if (!guildMember) {
-            console.error("Encountered a problem with automuting a user", err);
-            return;
-        }
-
-        //Give the role and the auto remove duration
-        var role = guild.roles.cache.find(role => role.name === 'Muted');
-        guildMember.roles.add(role);
-        const user = guildMember['user'];
-        const guildMemberID = user.id;
-        async function removeMute(id, duration) {
-            try{
-                await sleep(duration * 1000);
-                guildMember.roles.remove(role);
-                delete mutes[id]; //removes the mute from the global mute var
-            }
-            catch(err){
-                console.log(err);
-            }
-        };
-        mutes[guildMemberID] = removeMute(guildMemberID, config.violationMuteDurationMS);
-
-        //Add log and mute end to database
-        let logInfo = {
-            log_type: "MUTE",
-            log_username: (user.username+'#'+user.discriminator),
-            log_reason: '`DURATION [24h]- Automod bad word violation exceeded`',
-            log_moderator: 'ZoteBot',
-            log_user_id: guildMemberID, 
-        };
-
-        //Database handler
-        await addUserLog(logInfo);
-        await addMuteEnd((Date.now() + muteDurationMS), guildMemberID);  
-
-        let muteEmbed = new Discord.MessageEmbed();
-        muteEmbed.setTitle('M.O.H. Citation - Protocol Violated');
-        muteEmbed.setThumbnail(user.avatarURL());
-        muteEmbed.addFields(
-            { name: 'USER:', value: `${user.username+'#'+user.discriminator}`, inline: true },
-            { name: 'ID:', value: user.id, inline: true },
-            { name: 'PENALTY', value: 'Mute', inline: true },
-            { name: 'REASON', value: `DURATION [24h]- Automod bad word violation exceeded` },
-            { name: 'ISSUED BY:', value: `ZoteBot`},
-        );
-        muteEmbed.setColor('#ff8103');			
-        muteEmbed.setTimestamp();
-
-        client.channels.cache.get('837596563823132732').send(muteEmbed);
-        //Send message to user
-        try{
-            await guildMember.send(`You have been muted in **${guild.name}** \nReason: multiple bad word violations`);
-            return muteEmbed;
-        }
-        catch(err){
-            return ["Unable to send DM to user", muteEmbed];
-        }
-
-
     }
 }

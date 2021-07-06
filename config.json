@@ -1,6 +1,8 @@
 {
 	"prefix" : "!",
 
+	"rolesWithBotImmunity" : ["admin", "moderator"],
+
 	"mediaOnly" : false,
 	"mediaOnlySettings" : [
 		{"mediaOnlyChannelID" : "837605332309377056", "mediaOnlyLoggingChannelID" : ["837505202994282508", "837596563823132732"]}
@@ -21,13 +23,13 @@
 		"enabled" : true,
 		"maxViolations" : 3,
 		"violationCooldownMS" : 60000,
-		"violationMuteDurationMS" : 8.64e+7,
+		"violationMuteDurationMS" : "24h",
 		"channelToNotifyID": "837596563823132732"
 	},
 
 	"banAnnouncementSettings" : {
 		"enabled" : true,
-		"channelToNotifyID" : [837596563823132732]
+		"channelToNotifyID" : ["837596563823132732"]
 	},
 
 	"commandHandlerSetings" : {

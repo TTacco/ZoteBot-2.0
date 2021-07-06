@@ -24,15 +24,13 @@ module.exports = {
             let result = await executeQuery(updateQuery); 
 
             if(!result){
-                message.reply("Failed to execute edit log command, please check the logs.");
-                return;
+                return "Failed to execute edit log command, please check the logs.";
             }
         }
         else{
-            message.reply(`Log #${logidArg} does not exist`);
-            return;
+            return `Log #${logidArg} does not exist`;
         }
 
-        message.reply("Successfully executed the query");
+        return "Successfully executed the query";
     }
 }

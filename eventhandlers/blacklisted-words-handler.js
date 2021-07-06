@@ -2,7 +2,7 @@ var { blacklistedWords } = require('../utils/blacklistedwords.js');
 const Discord = require('discord.js');
 const { client } = require('../index.js');
 const { sleep } = require('../utils/helper-functions.js');
-const { messageChangelogSettings : cfg } = require('../config.json');
+const { blackListHandlerSettings : cfg } = require('../config.json');
 
 if(cfg.enabled){
     client.on('message', message => {  
@@ -13,10 +13,10 @@ if(cfg.enabled){
         let caughtBadWords = blacklistedWords.filter(badWord => { return messageWithWhiteSpace.includes(" "+badWord+" ") });
     
         if(caughtBadWords.length > 0){
-            let channelDestination = client.channels.cache.get(cfg.channelToNotifyID);
+            let channelToNotify = client.channels.cache.get(cfg.channelToNotifyID);
     
             message.author.send(`Auto-deleted your message because it contains the blacklisted word: ${caughtBadWords[0]}`).catch(error => {
-                channelDestination.send(`Unable to send ${message.author.username}#${message.author.discriminator} a DM`);
+                channelToNotify.send(`Unable to send ${message.author.username}#${message.author.discriminator} a DM`);
             }); 
      
             let badWordEmbed = new Discord.MessageEmbed();
@@ -27,7 +27,7 @@ if(cfg.enabled){
             badWordEmbed.setColor('#FF4444');
             badWordEmbed.setTimestamp();
             badWordEmbed.setFooter(`User ID: ${message.author.id}`);
-            channelDestination.send(badWordEmbed);
+            channelToNotify.send(badWordEmbed);
             
             //Closure function to track user bad word violations in a given time period
             function autoMuteAccumulator(){
@@ -35,10 +35,19 @@ if(cfg.enabled){
                 return async function (){
                     violations++;   
                     console.log("Number of violations ", violations)        
-                    if(violations > cfg.maxViolations){
+                    if(violations >= cfg.maxViolations){
                         const muteCommand = client.commands.get('mute');
-                        muteCommand.autoMute(message.author.id, message.guild);
-                        delete client.autoMuteList[message.author.id];
+
+                        let proxyMessage = {
+                            "author" : {
+                                "username" : "ZoteBot",
+                                "discriminator" : "6819"
+                            },
+                            "guild" : message.guild,
+                        }
+  
+                        await muteCommand.execute([message.author.id, "24h", "Auto muted by bot for multiple blacklisted word violations"], proxyMessage);
+                        delete client.autoMuteList[message.author.id];  
                     }
     
                     await sleep(cfg.violationCooldownMS);      

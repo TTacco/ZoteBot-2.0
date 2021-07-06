@@ -1,7 +1,7 @@
 const { client } = require('../index.js');
 //same
 async function addUserLog(logInfo) {
-  console.log("Add User Log");
+  console.log("Added User Log into the database");
   let insertLogQuery = `INSERT INTO users_log (log_type, log_username, log_reason, log_date, log_moderator, log_user_id)` + 
                 ` VALUES ('${logInfo.log_type}', '${logInfo.log_username}', '${logInfo.log_reason}', NOW(), '${logInfo.log_moderator}', ${logInfo.log_user_id})`;
 
