@@ -5,8 +5,9 @@ const { addUserLog } = require('../utils/database-query-helper.js');
 module.exports = {
     name: 'note',
     aliases: ['n'],
-	description: 'Warns a user',
-    usage: '-user -reason',
+	description: `Places a note in the user's log without notifying them`,
+    usage: '<COMMAND NAME|ALIAS> <NOTE>',
+    example: 'note for being a sussy baka',
     args: true,
     guildOnly: true,
     cooldown: 3,
@@ -14,37 +15,32 @@ module.exports = {
         
         let userToNote = args.shift();
         let noteReason = args.join(' ');
+        let executionResults = [];
 
         const guildMember = await getGuildMemberByNameOrID(userToNote, message.guild);
         let user = guildMember['user'] || await getUserByID(userToWarn);
         if (!user) {
-            message.reply("User specified does not exist, make sure it's in the correct format");
+            return "User specified does not exist, make sure it's in the correct format";
             return;
         }
 
         if(noteReason.length < 1){
-            noteReason = 'No reason specified';
+            return 'Cannot note someone without any specified reasons';
         }
+        let noteToChannelEmbed = new Discord.MessageEmbed();
+        noteToChannelEmbed.setTitle('K.O.H. Proclamation of Awareness');
+        noteToChannelEmbed.setThumbnail(user.avatarURL());
+        noteToChannelEmbed.addFields(
+            { name: 'USER:', value: `${user.username}#${user.discriminator}`, inline: true },
+            { name: 'ID:', value: user.id, inline: true },
+            { name: 'PENALTY', value: 'Note', inline: true },
+            { name: 'REASON', value: noteReason},
+            { name: 'ISSUED BY:', value: `${message.author.username}#${message.author.discriminator}`},
+        );
+        noteToChannelEmbed.setColor('#d9cb04');			
+        noteToChannelEmbed.setTimestamp();
 
-        try {
-			//await message.guild.members.ban(user, { banReason });	//THE actual kill command.
-
-            let noteToChannelEmbed = new Discord.MessageEmbed();
-            noteToChannelEmbed.setTitle('M.O.H. Citation - Surveilance Record');
-            noteToChannelEmbed.setThumbnail(user.avatarURL());
-            noteToChannelEmbed.addFields(
-                { name: 'USER:', value: `${user.username}#${user.discriminator}`, inline: true },
-                { name: 'ID:', value: user.id, inline: true },
-                { name: 'PENALTY', value: 'Warn', inline: true },
-                { name: 'REASON', value: noteReason},
-                { name: 'ISSUED BY:', value: `${message.author.username}#${message.author.discriminator}`},
-            );
-            noteToChannelEmbed.setColor('#4287f5');			
-            noteToChannelEmbed.setTimestamp();
-            message.channel.send(noteToChannelEmbed);
-        } catch (error) {
-            return message.reply(`Failed to warn: ${user.name}\nError: ${error}`, message.channel);
-        }
+        executionResults.push(noteToChannelEmbed);
 
         let logInfo = {
             log_type: "NOTE",
@@ -55,6 +51,8 @@ module.exports = {
         };
 
         addUserLog(logInfo);
+
+        return executionResults;
 
     }
 }

@@ -6,23 +6,27 @@ const { addUserLog, addMuteEnd } = require('../utils/database-query-helper.js');
 
 module.exports = {
     name: 'unmute',
-    aliases: ['un'],
-	description: 'Unmutes a user',
-    usage: '-user',
+    aliases: ['um'],
+	description: 'Unmutes a user (does not remove their log)',
+    usage: '<COMMAND NAME|ALIAS> <USER>',
+    example: 'um User#1234',
     args: true,
     guildOnly: true,
     cooldown: 3,
     async execute(args, message) {
 
+        const guild = message.guild;
+
         try {
-            let userToUnmute = args.shift();
-            let guildMember = await getGuildMemberByNameOrID(userToUnmute, message.guild);
+            let targetUser = args.shift();
+
+            let guildMember = await getGuildMemberByNameOrID(targetUser, guild) || await getUserByID(targetUser);
             if (!guildMember) {
                 return "User specified does not exist, make sure it's in the correct format\nNOTE: "
             }
     
             //Get get the mute role 
-            var role = message.guild.roles.cache.find(role => role.name === 'Muted');
+            var role = guild.roles.cache.find(role => role.name === 'Muted');
     
             //Remove the mute from the 
             guildMember.roles.remove(role);
@@ -31,8 +35,9 @@ module.exports = {
     
             return "Successfully unmuted the user!";
         }
-        catch(err){
-            return "Error occured while attempting to unmute user " + err;
+        catch(error){
+            console.error(error);
+            return "Error occured while attempting to unmute user";
         }
     }
 }

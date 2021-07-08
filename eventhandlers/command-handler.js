@@ -8,12 +8,19 @@ if(cfg.enabled){
 
         if (message.author.bot || !message.content.startsWith(prefix)) return;
     
+        if(!message.member.hasPermission(['KICK_MEMBERS', 'BAN_MEMBERS'])){
+            message.channel.send(`No permissions to use this role`);
+            return;
+        }
+
+        /*
         if(!message.member.roles.cache.some(role => { 
           return cfg.allowedRoleNames.includes(role.name.toLocaleLowerCase());
         })){
             message.channel.send(`No permissions to use this role`);
             return;
         } 
+        */
     
         let args = message.content.substr(1, message.content.length).trim().split(/\s+/);
         let commandName = args.shift().toLowerCase(); 
@@ -61,30 +68,25 @@ if(cfg.enabled){
         timestamps.set(message.author.id, now);
         setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
         
-    
         //Attempt to execute the command
-        try {
-            let results = command.execute(args, message);
-            if(!results) return;
-            
-            //Resolve the promise
-            results.then((res) => {
-            //Check if the results received is a null
-                if(res){
-                    if(Array.isArray(results)){
-                        results.then((res) => {
-                            message.channel.send(...res);
-                        });
-                    }
-                    else{
-                        message.channel.send(res);
-                    }
+        async function executeCommandAsync(a, m){
+            try {     
+                let results = await command.execute(a, m);
+                if(!results) return;
+
+                if(Array.isArray(results)){
+                    results.forEach(async (res) => {await message.channel.send(res)});
                 }
-            });
-        } catch (error) {
-            console.error(error);
-            message.channel.send('Error occured on command execution.', error);
+                else{
+                    message.channel.send(results);
+                }
+
+            } catch (error) {
+                console.error(error);
+                message.channel.send('Error occured on command execution.', error);
+            }
         }
+        executeCommandAsync(args, message);
     
     });
 }

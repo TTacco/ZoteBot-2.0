@@ -5,8 +5,9 @@ const { getGuildMemberByNameOrID, getUserByID } = require('../utils/helper-funct
 module.exports = {
     name: 'editlog',
     aliases: ['edit','el'],
-    description: 'Changes the log of a specified user and their log id',
-    usage: '-logid -newlogreason',
+    description: 'Edits the log of a specified log in the database',
+    usage: '<COMMAND NAME|ALIAS> <LOG ID> <NEW LOG>',
+    example: "el 000012 I am editing this user log!" ,
     args: true,
     guildOnly: true,
     cooldown: 3,

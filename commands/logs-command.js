@@ -5,8 +5,9 @@ const { getGuildMemberByNameOrID, getUserByID, ISODateFormatter} = require('../u
 module.exports = {
     name: 'logs',
     aliases: ['l', 'log'],
-    description: 'Shows the logs of a specified user user',
-    usage: '-userid',
+    description: 'Shows the logs of a user',
+    usage: '<COMMAND NAME|ALIAS> <USER>',
+    example: 'log User#1234',
     args: true,
     guildOnly: true,
     cooldown: 3,
@@ -36,8 +37,8 @@ module.exports = {
                 logDisplayMessage_local.edit(createLogEmbed(initLogsToDisplay, 0));
             }
             catch (err) {
-                console.error("Unable to create log embedding ", err);
-                return;
+                console.error(err);
+                return "Unable to create log embedding";
             }
 
 
@@ -52,16 +53,14 @@ module.exports = {
 
                 let logSnippet = userLogs_local.slice(lowerBound, (lowerBound + 5));
                 logDisplayMessage_local.edit(createLogEmbed(logSnippet, lowerBound));
-                
-
             }
 
             
             function createLogEmbed(logsToDisplay, lowerB) {
                 let logEmbed = new Discord.MessageEmbed();
-                logEmbed.setTitle(`M.O.H. TRANSCRIPT OF RECORDS`);
+                logEmbed.setTitle(`K.O.H. Request of Transcript`);
                 logEmbed.setDescription(`Transcript For User: ${user.username + '#' + user.discriminator}`);
-                logEmbed.setColor(`#963499`);
+                logEmbed.setColor(`#0375a6`);
 
                 let totalLogsLen = userLogs_local.length;
 
@@ -83,6 +82,7 @@ module.exports = {
                     logEmbed.addField('[DETAILS]', details);
                     
                     //Get the upperbound value to display
+                    //totalLogsLen allows me to make sure I DONT display more than the max amount of logs a user has
                     let upperB = ((lowerB+5) > totalLogsLen)? totalLogsLen : lowerB+5;
                     logEmbed.setFooter(`Showing ${lowerB+1}~${upperB} out of ${totalLogsLen} total logs.`);
                 }

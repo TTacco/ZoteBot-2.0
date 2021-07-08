@@ -3,9 +3,10 @@ const {getGuildMemberByNameOrID, getUserByID, ISODateFormatter} = require('../ut
 
 module.exports = {
     name: 'identify',
-	aliases: ['whois','i','inspect'],
+	aliases: ['i','inspect','whois'],
 	description: 'Identifies a user and their information',
-    usage: '-user',
+    usage: '<COMMAND NAME|ALIAS> <USER>',
+    example: 'whois User#1234',
     args: true,
     guildOnly: true,
     cooldown: 3,
@@ -30,7 +31,7 @@ module.exports = {
 
         //Embed
         let identifyEmbed = new Discord.MessageEmbed();
-        identifyEmbed.setTitle('K.O.H. Request - User Info');
+        identifyEmbed.setTitle('K.O.H. Observation Details');
         identifyEmbed.setThumbnail(user.avatarURL());
         identifyEmbed.addFields(
             { name: 'USER:', value: `${user.username+'#'+user.discriminator}`, inline: true },
@@ -38,9 +39,9 @@ module.exports = {
             { name: 'NICKNAME:', value: `${guildMember.nickname ? guildMember.nickname : 'N/A'}`},
             { name: 'CREATED AT:', value: `${createdAtFormatted}`, inline: true},
             { name: 'JOINED AT:', value: `${joinedAtDateFormatted}`, inline: true},
-            { name: 'ROLES:', value: `${memberRolesToDisplay.join(' ')}`},
+            { name: 'ROLES:', value: `${memberRolesToDisplay.join(' ') || "No Roles"}`},
         );
-        identifyEmbed.setColor('#67ad0a');
+        identifyEmbed.setColor('#6ba605');
         return [identifyEmbed];
     }
 }

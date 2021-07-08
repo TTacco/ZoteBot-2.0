@@ -8,11 +8,12 @@
 		{"mediaOnlyChannelID" : "837605332309377056", "mediaOnlyLoggingChannelID" : ["837505202994282508", "837596563823132732"]}
 	],
 
-
-	"autoDelete" : false,
-	"autoDeleteSettings" : [
-			{"autoDeleteChannelID": "837591854647869460", "autoDeleteTimeout" : 5000 }
-	],
+	"autoDeleteSettings" : {
+		"enabled" : true,
+		"channelsWithAutoDelete" : [
+			{"channelID" : "837591854647869460", "timeout" : 5000}
+		]
+	},
 
 	"messageChangelogSettings" : {
 		"enabled" : true,
@@ -29,7 +30,7 @@
 
 	"banAnnouncementSettings" : {
 		"enabled" : true,
-		"channelToNotifyID" : ["837596563823132732"]
+		"channelsToNotifyID" : ["837505202994282508"]
 	},
 
 	"commandHandlerSetings" : {

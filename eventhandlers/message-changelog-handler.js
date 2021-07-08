@@ -6,13 +6,15 @@ const config = require("../config.json");
 
 if(config.messageChangelogSettings.enabled){
     let channelsToSend = config.messageChangelogSettings.messageChangelogChannelID;
-    client.on('messageUpdate', (oldMessage, newMessage) => {
+    client.on('messageUpdate', async (oldMessage, newMessage) => {
         try {
-            if(oldMessage.author.bot || !oldMessage) return;
+            if(oldMessage.partial) 
+              oldMessage = await oldMessage.fetch();
+                
+            if(!oldMessage || oldMessage.author.bot) return;
             for(let i = 0; i<channelsToSend.length; i++){
                 let channelDestination = client.channels.cache.get(channelsToSend[i]);
                 let messageUpdateEmbed = new Discord.MessageEmbed();
-                messageUpdateEmbed.setTitle('Message Updated');
                 messageUpdateEmbed.setAuthor(`${oldMessage.author.username}#${oldMessage.author.discriminator}`, oldMessage.author.avatarURL());
                 messageUpdateEmbed.addFields(
                     { name: 'OLD:', value: oldMessage},
@@ -31,14 +33,16 @@ if(config.messageChangelogSettings.enabled){
     
     });
     
-    client.on('messageDelete', (deletedMessage) => {
+    client.on('messageDelete', async (deletedMessage) => {
         try {
-            if(deletedMessage.author.bot || deletedMessage == null) return;
+            if(deletedMessage.partial) 
+                deletedMessage = await deletedMessage.fetch();
+
+            if(!deletedMessage || deletedMessage.author.bot) return;
 
             for(let i = 0; i<channelsToSend.length; i++){
                 let channelDestination = client.channels.cache.get(channelsToSend[i]);
                 let messageDeletedEmbed = new Discord.MessageEmbed();
-                messageDeletedEmbed.setTitle('Message Deleted');
                 messageDeletedEmbed.setAuthor(`${deletedMessage.author.username}#${deletedMessage.author.discriminator}`, deletedMessage.author.avatarURL());
                 messageDeletedEmbed.addFields(
                     { name: 'DELETED: ', value: deletedMessage, inline: true},
